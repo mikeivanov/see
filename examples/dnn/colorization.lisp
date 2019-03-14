@@ -120,11 +120,11 @@
    :long "kernel"
    :arg-parser #'identity
    :description "Path to pts_in_hull.csv.")
-  (:name :use-open-cv
+  (:name :use-open-cl
    :short #\c
-   :long "use-opencv"
+   :long "use-opencl"
    :arg-parser (lambda (v) (or (null v) (string-equal "yes" v)))
-   :description "(yes/no) Use OpenCV if available."))
+   :description "(yes/no) Use OpenCL if available."))
 
 (defparameter +about+ "iColor: deep interactive colorization")
 

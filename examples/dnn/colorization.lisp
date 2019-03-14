@@ -78,8 +78,8 @@
         (let* ((gray (image-luminance img))
                (color (colorize-grayscale-image net gray)))
           (show-image win color)
-          (trivial-garbage:gc)
-          (< key 0))))))
+          (trivial-garbage:gc))))
+    (< key 0)))
 
 (defun colorization (&key
                        input

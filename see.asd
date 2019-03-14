@@ -1,8 +1,12 @@
+;; This file is a part of the SEE project.
+;; It is subject to the license terms in the LICENSE file found
+;; in the top-level directory of this distribution.
+
 (defsystem :see
   :name :see
   :version "0.0.1"
   :author "Mike Ivanov"
-  :license "BSD"
+  :license "MIT"
   :description "A binding of the OpenCV library."
   :depends-on (:cffi
                :trivial-features

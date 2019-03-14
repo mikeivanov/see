@@ -1,3 +1,7 @@
+;; This file is a part of the SEE project.
+;; It is subject to the license terms in the LICENSE file found
+;; in the top-level directory of this distribution.
+
 ;; Script is based on
 ;; https://docs.opencv.org/4.0.1/d6/d39/samples_2dnn_2colorization_8cpp-example.html
 ;; Which in turn is based on

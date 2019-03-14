@@ -86,8 +86,8 @@
                        (model +model-path+)
                        (proto +proto-path+)
                        (kernel +kernel-path+)
-                       (use-open-cv t))
-  (with-resource (net (prepare-model model proto kernel use-open-cv))
+                       (use-open-cl t))
+  (with-resource (net (prepare-model model proto kernel use-open-cl))
     (with-resource (capture (if input
                                 (video-capture :uri input)
                                 (video-capture :device 0)))
@@ -120,11 +120,11 @@
    :long "kernel"
    :arg-parser #'identity
    :description "Path to pts_in_hull.csv.")
-  (:name :use-open-cv
+  (:name :use-open-cl
    :short #\c
-   :long "use-opencv"
+   :long "use-opencl"
    :arg-parser (lambda (v) (or (null v) (string-equal "yes" v)))
-   :description "(yes/no) Use OpenCV if available."))
+   :description "(yes/no) Use OpenCL if available."))
 
 (defparameter +about+ "iColor: deep interactive colorization")
 

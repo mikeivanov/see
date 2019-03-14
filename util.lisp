@@ -115,3 +115,34 @@
 @export
 (defun as-double-float (x)
   (coerce x 'double-float))
+
+@export
+(defun array-shape (array)
+  (loop for d from 0 below (array-rank array)
+        collect (array-dimension array d)))
+
+@export
+(defun flatten-array (array)
+  (make-array (list (array-total-size array))
+              :displaced-to array
+              :displaced-index-offset 0
+              :element-type (array-element-type array)))
+
+@export
+(defun array-transpose (array)
+  (let* ((m (array-dimension array 0))
+         (n (array-dimension array 1))
+         (result (make-array `(,n ,m)
+                             :initial-element (coerce 0 (array-element-type array))
+                             :element-type (array-element-type array))))
+    (loop for i from 0 below m do
+      (loop for j from 0 below n do
+        (setf (aref result j i)
+              (aref array i j))))
+    result))
+
+@export
+(defun array-reshape (array shape)
+  (make-array shape
+              :displaced-to array
+              :element-type (array-element-type array)))

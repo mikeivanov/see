@@ -17,6 +17,13 @@
 
 ;; Ints --------------------------------
 
+(defun ints-to-cv (values)
+  (let ((cv (cv-ints-new)))
+    (etypecase values
+      (array (loop for v across values do (cv-ints-add cv v)))
+      (list  (loop for v in     values do (cv-ints-add cv v))))
+    cv))
+
 (defun ints-from-cv (cints)
   (loop for i from 0 below (cv-ints-count cints)
         collect (cv-ints-get cints i)))
@@ -28,6 +35,12 @@
       (setf (elt arr i) (cv-ints-get cints i)))
     arr))
 
+(defun int-array-to-cv (values)
+  (let ((cv (cv-ints-new)))
+    (loop for v across values
+          do (cv-ints-add cv v))
+    cv))
+
 ;; Strings ---------------------------------
 
 (defun strings-to-cv (strings)
@@ -38,7 +51,7 @@
 
 (defun strings-from-cv (cstrings)
   (loop for i from 0 below (cv-strings-count cstrings)
-     collect (cv-strings-get cstrings i)))
+        collect (cv-strings-get cstrings i)))
 
 ;; Scalar ---------------------------
 
@@ -72,6 +85,12 @@
             (cffi:mem-aref ptr :double 1)
             (cffi:mem-aref ptr :double 2)
             (cffi:mem-aref ptr :double 3))))
+
+(defun as-scalar (x)
+  (etypecase x
+    (scalar x)
+    (number (scalar x))
+    (list (apply #'scalar x))))
 
 ;; Size ------------------------------
 

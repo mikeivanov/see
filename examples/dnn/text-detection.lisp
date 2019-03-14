@@ -4,31 +4,22 @@
 (declaim (optimize (speed 0) (space 0) (debug 3)))
 
 (defparameter +model-file-name+ "frozen_east_text_detection.pb")
-(defparameter +model-input-width+ 320)
-(defparameter +model-input-height+ 320)
+(defparameter +model-input-size+ (size 320 320))
 (defparameter +model-output-layers+ '("feature_fusion/Conv_7/Sigmoid"
                                       "feature_fusion/concat_3"))
 (defparameter +model-input-mean+ (scalar 123.68d0 116.78d0 103.94d0 0d0))
 (defparameter +confidence-threshold+ 0.5)
 (defparameter +nms-threshold+ 0.4)
 
-(defun region-box (geometry x y sx sy)
-  (let* ((input-x (* x sx))
-         (input-y (* y sy))
-         ;; four offsets from the center point (input-x, input-y)
-         (left   (at geometry (vector 0 0 y x)))
-         (top    (at geometry (vector 0 1 y x)))
-         (right  (at geometry (vector 0 2 y x)))
-         (bottom (at geometry (vector 0 3 y x)))
-         (alpha  (at geometry (vector 0 4 y x)))
-         (h (+ left right))
+(defun region-box (x y left top right bottom alpha sx sy)
+  (let* ((h (+ left right))
          (w (+ top bottom))
          (cos-a (cos alpha))
          (sin-a (sin alpha))
-         (off-x (+ input-x
+         (off-x (+ (* x sx)
                    (* cos-a top)
                    (* sin-a right)))
-         (off-y (+ input-y
+         (off-y (+ (* y sy)
                    (* -1 sin-a top)
                    (* cos-a right)))
          (p1-x (+ (* (- sin-a) h) off-x))
@@ -41,28 +32,31 @@
     (rotated-rect cx cy w h angle)))
 
 (defun decode-boxes (scores geometry threshold sx sy)
-  (let* ((shape (shape scores))
-         (sh    (elt shape 2))
-         (sw    (elt shape 3))
+  (let* ((scores (mat-to-array (slice scores '(0 0))))
+         (geometry (mat-to-array (slice geometry '(0))))
          (boxes nil)
          (confs nil))
-    (loop for y from 0 below sh
-          append (loop for x from 0 below sw
-                       for score = (at scores (vector 0 0 y x))
-                       when (< threshold score)
-                         do (progn
-                              (push (region-box geometry x y sx sy) boxes)
+    (loop for y from 0 below (array-dimension scores 1)
+          do (loop for x from 0 below (array-dimension scores 0)
+                   for score = (aref scores y x)
+                   when (< threshold score)
+                     do (let (;; four offsets from the center point (x,y)
+                              (left   (aref geometry 0 y x))
+                              (top    (aref geometry 1 y x))
+                              (right  (aref geometry 2 y x))
+                              (bottom (aref geometry 3 y x))
+                                  ;; rotation angle
+                                  (alpha  (aref geometry 4 x y)))
+                              (push (region-box x y left top right bottom alpha sx sy) boxes)
                               (push score confs))))
     (values (nreverse boxes)
             (nreverse confs))))
 
 (defun detect-text (net frame &key
-                        (input-size (size +model-input-width+
-                                          +model-input-height+))
                         (confidence-threshold +confidence-threshold+)
                         (nms-threshold +nms-threshold+))
   (with-resource (blob (blob-from-images (list frame)
-                                         :size input-size
+                                         :size +model-input-size+
                                          :mean +model-input-mean+
                                          :swap-rb t))
     (set-net-input net blob)
@@ -71,8 +65,8 @@
       (let* ((sz (shape scores))
              (sh (elt sz 2))
              (sw (elt sz 3))
-             (mw (width input-size))
-             (mh (height input-size))
+             (mw (width +model-input-size+))
+             (mh (height +model-input-size+))
              (sx (float (/ mw sw)))
              (sy (float (/ mh sh)))
              (fx (float (/ (cols frame) mw)))
@@ -107,31 +101,27 @@
 (defun text-detection (&key
                          input
                          (model +model-file-name+)
-                         (width +model-input-width+)
-                         (height +model-input-height+)
                          (confidence-threshold +confidence-threshold+)
                          (nms-threshold +nms-threshold+))
-  (let ((input-size (size width height)))
-    (with-resource (net (read-net model))
-      (with-resource (capture (if input
-                                  (video-capture :uri input)
-                                  (video-capture :device 0)))
-        (with-open-window ((win key)
-                           :name "Text Recognition"
-                           :delay 50)
-          (with-resource (img (read-video-frame capture))
-            (when (not (empty-p img))
-              (let* ((regions (detect-text net img
-                                           :input-size input-size
-                                           :confidence-threshold confidence-threshold
-                                           :nms-threshold nms-threshold))
-                     (freq (/ (tick-frequency) 1000.0))
-                     (time (/ (performance-profile net) freq)))
-                (draw-regions img regions)
-                (draw-perf-info img (format nil "Inference time: ~,2f ms" time))
-                (show-image win img))))
-          (trivial-garbage:gc)
-          (< key 0))))))
+  (with-resource (net (read-net model))
+    (with-resource (capture (if input
+                                (video-capture :uri input)
+                                (video-capture :device 0)))
+      (with-open-window ((win key)
+                         :name "Text Recognition"
+                         :delay 50)
+        (with-resource (img (read-video-frame capture))
+          (when (not (empty-p img))
+            (let* ((regions (detect-text net img
+                                         :confidence-threshold confidence-threshold
+                                         :nms-threshold nms-threshold))
+                   (freq (/ (tick-frequency) 1000.0))
+                   (time (/ (performance-profile net) freq)))
+              (draw-regions img regions)
+              (draw-perf-info img (format nil "Inference time: ~,2f ms" time))
+              (show-image win img))))
+        (trivial-garbage:gc)
+        (< key 0)))))
 
 (opts:define-opts
   (:name :help
@@ -150,22 +140,6 @@
    :long "model"
    :arg-parser #'identity
    :description "Path to a binary .pb file contains trained network.")
-  (:name :width
-   :short #\w
-   :long "width"
-   :arg-parser #'parse-integer
-   :description (concatenate 'string
-                             "Preprocess input image by resizing to a specific width. "
-                             "It should be multiple by 32. "
-                             "Default value is 320."))
-  (:name :height
-   :short #\h
-   :long "height"
-   :arg-parser #'parse-integer
-   :description (concatenate 'string
-                             "Preprocess input image by resizing to a specific height. "
-                             "It should be multiple by 32. "
-                             "Default value is 320."))
   (:name :confidence-threshold
    :long "thr"
    :arg-parser #'parse-number:parse-positive-real-number

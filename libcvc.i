@@ -59,6 +59,9 @@
            package))))))
 %}
 
+%ignore WARP_FILL_OUTLIERS;
+%ignore WARP_INVERSE_MAP;
+
 %include "libcvc/version.h"
 %include "libcvc/types.h"
 %include "libcvc/core.h"
@@ -67,3 +70,10 @@
 %include "libcvc/highgui.h"
 %include "libcvc/videoio.h"
 %include "libcvc/dnn.h"
+
+enum CvInterpolationWarp {
+     WARP_NONE = 0,
+     WARP_FILL_OUTLIERS   = 8,
+     WARP_INVERSE_MAP     = 16
+};
+

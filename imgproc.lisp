@@ -1,6 +1,42 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
+;; Transforms ---------------------------
+
+@export
+(defun convert-colorspace (img code &key target (channels 0))
+  (let ((dst (or target (mat))))
+    (check-cv-error #'null
+                    (cv-cvt-color (peer img)
+                                  (peer dst)
+                                  (cffi:foreign-enum-value 'cv-color-conversion-codes code)
+                                  channels))
+    dst))
+
+@export
+(defun resize-image (img size &key
+                                target (fx 0d0) (fy 0d0)
+                                (interpolation :inter-linear)
+                                (warp :warp-none))
+  (assert (= 2 (dims img)))
+  (let ((dst (or target (mat)))
+        (flags (+ (cffi:foreign-enum-value 'cv-interpolation-flags
+                                           interpolation)
+                  (cffi:foreign-enum-value 'cv-interpolation-warp
+                                           warp))))
+    (with-foreign-resource (csize (size-to-cv size)
+                            :free cv-size-free)
+      (check-cv-error #'null
+                      (cv-resize (peer img)
+                                 (peer dst)
+                                 csize
+                                 (as-double-float fx)
+                                 (as-double-float fy)
+                                 flags)))
+    dst))
+
+;; Drawing ------------------------
+
 @export
 (defun draw-line (img a b &key
                             (color (scalar))

@@ -6,5 +6,6 @@
   :description "SEE Examples."
   :depends-on (:see
                :unix-opts
-               :parse-number)
+               :parse-number
+               :cl-csv)
   :components ((:file "examples")))

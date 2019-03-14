@@ -6,10 +6,6 @@
 
 (in-package :see)
 
-//;;(cffi:close-foreign-library lib)
-//;;(cl:eval-when (:load-toplevel :execute)
-//;;(defparameter lib (cffi:load-foreign-library "libcvc/libcvc.so.0.1")))
-
 (eval-when (:compile-toplevel :load-toplevel :execute)
  (progn
    (cffi:define-foreign-library libcvc
@@ -18,7 +14,7 @@
     (:windows "libcvc.dll")
     (t "libcvc"))
    (cffi:use-foreign-library libcvc)))
-    
+
 (cl:eval-when (:compile-toplevel :load-toplevel)
   (cl:unless (cl:fboundp 'cl-swig-lispify)
     (cl:defun cl-swig-lispify (name flag cl:&optional (package cl:*package*))
@@ -34,7 +30,7 @@
                       ((cl:lower-case-p c)
                        (helper (cl:cdr lst) 'lower (cl:cons (cl:char-upcase c) rest)))
                       ((cl:digit-char-p c)
-                       (helper (cl:cdr lst) 'digit 
+                       (helper (cl:cdr lst) 'digit
                                (cl:case last
                                  ((upper lower) (cl:list* c #\- rest))
                                  (cl:t (cl:cons c rest)))))
@@ -53,7 +49,6 @@
             (cl:nreverse (helper (cl:concatenate 'cl:list name) cl:nil cl:nil))
             fix)
            package))))))
-
 
 
 
@@ -360,21 +355,15 @@
   (self :pointer)
   (idx :int))
 
-(cl:defconstant #.(cl-swig-lispify "CV_8U" 'constant) 0)
-
-(cl:defconstant #.(cl-swig-lispify "CV_8S" 'constant) 1)
-
-(cl:defconstant #.(cl-swig-lispify "CV_16U" 'constant) 2)
-
-(cl:defconstant #.(cl-swig-lispify "CV_16S" 'constant) 3)
-
-(cl:defconstant #.(cl-swig-lispify "CV_32S" 'constant) 4)
-
-(cl:defconstant #.(cl-swig-lispify "CV_32F" 'constant) 5)
-
-(cl:defconstant #.(cl-swig-lispify "CV_64F" 'constant) 6)
-
-(cl:defconstant #.(cl-swig-lispify "CV_16F" 'constant) 7)
+(cffi:defcenum #.(cl-swig-lispify "CvDepths" 'enumname)
+	(#.(cl-swig-lispify "DEPTH_8U" 'enumvalue :keyword) #.0)
+	(#.(cl-swig-lispify "DEPTH_8S" 'enumvalue :keyword) #.1)
+	(#.(cl-swig-lispify "DEPTH_16U" 'enumvalue :keyword) #.2)
+	(#.(cl-swig-lispify "DEPTH_16S" 'enumvalue :keyword) #.3)
+	(#.(cl-swig-lispify "DEPTH_32S" 'enumvalue :keyword) #.4)
+	(#.(cl-swig-lispify "DEPTH_32F" 'enumvalue :keyword) #.5)
+	(#.(cl-swig-lispify "DEPTH_64F" 'enumvalue :keyword) #.6)
+	(#.(cl-swig-lispify "DEPTH_16F" 'enumvalue :keyword) #.7))
 
 (cffi:defcfun ("cv_mats_new" #.(cl-swig-lispify "cv_mats_new" 'function)) :pointer)
 
@@ -413,10 +402,10 @@
   (type :int)
   (scalar :pointer))
 
-(cffi:defcfun ("cv_mat_new_with_bytes" #.(cl-swig-lispify "cv_mat_new_with_bytes" 'function)) :pointer
+(cffi:defcfun ("cv_mat_new_with_data" #.(cl-swig-lispify "cv_mat_new_with_data" 'function)) :pointer
   (shape :pointer)
   (type :int)
-  (bytes :pointer))
+  (data :pointer))
 
 (cffi:defcfun ("cv_mat_copy" #.(cl-swig-lispify "cv_mat_copy" 'function)) :pointer
   (self :pointer))
@@ -443,9 +432,6 @@
   (alpha :double)
   (beta :double))
 
-(cffi:defcfun ("cv_mat_to_buffer" #.(cl-swig-lispify "cv_mat_to_buffer" 'function)) :pointer
-  (m :pointer))
-
 (cffi:defcfun ("cv_mat_patch_nans" #.(cl-swig-lispify "cv_mat_patch_nans" 'function)) :void
   (m :pointer)
   (val :double))
@@ -466,6 +452,9 @@
 
 (cffi:defcfun ("cv_mat_type" #.(cl-swig-lispify "cv_mat_type" 'function)) :int
   (m :pointer))
+
+(cffi:defcfun ("cv_mat_elem_size" #.(cl-swig-lispify "cv_mat_elem_size" 'function)) :long
+  (self :pointer))
 
 (cffi:defcfun ("cv_mat_step" #.(cl-swig-lispify "cv_mat_step" 'function)) :long
   (m :pointer))
@@ -493,31 +482,25 @@
   (cn :int)
   (shape :pointer))
 
-(cffi:defcfun ("cv_mat_get_int" #.(cl-swig-lispify "cv_mat_get_int" 'function)) :int
-  (m :pointer)
-  (idx :pointer))
-
-(cffi:defcfun ("cv_mat_get_double" #.(cl-swig-lispify "cv_mat_get_double" 'function)) :double
-  (m :pointer)
-  (idx :pointer))
-
 (cffi:defcfun ("cv_mat_get_ptr" #.(cl-swig-lispify "cv_mat_get_ptr" 'function)) :pointer
   (m :pointer)
   (idx :pointer))
 
-(cffi:defcfun ("cv_mat_set_int" #.(cl-swig-lispify "cv_mat_set_int" 'function)) :bool
-  (m :pointer)
-  (idx :pointer)
-  (val :int))
-
-(cffi:defcfun ("cv_mat_set_double" #.(cl-swig-lispify "cv_mat_set_double" 'function)) :bool
-  (m :pointer)
-  (idx :pointer)
-  (val :double))
-
 (cffi:defcfun ("cv_get_tick_count" #.(cl-swig-lispify "cv_get_tick_count" 'function)) :long)
 
 (cffi:defcfun ("cv_get_tick_frequency" #.(cl-swig-lispify "cv_get_tick_frequency" 'function)) :double)
+
+(cffi:defcfun ("cv_extract_channel" #.(cl-swig-lispify "cv_extract_channel" 'function)) :bool
+  (src :pointer)
+  (dst :pointer)
+  (coi :int))
+
+(cffi:defcfun ("cv_merge" #.(cl-swig-lispify "cv_merge" 'function)) :pointer
+  (channels :pointer))
+
+(cffi:defcfun ("cv_mat_add_scalar" #.(cl-swig-lispify "cv_mat_add_scalar" 'function)) :bool
+  (mat :pointer)
+  (addendum :pointer))
 
 (cffi:defcenum #.(cl-swig-lispify "CvImreadModes" 'enumname)
 	(#.(cl-swig-lispify "IMREAD_UNCHANGED" 'enumvalue :keyword) #.-1)
@@ -568,6 +551,225 @@
 	(#.(cl-swig-lispify "FONT_HERSHEY_SCRIPT_SIMPLEX" 'enumvalue :keyword) #.6)
 	(#.(cl-swig-lispify "FONT_HERSHEY_SCRIPT_COMPLEX" 'enumvalue :keyword) #.7)
 	(#.(cl-swig-lispify "FONT_ITALIC" 'enumvalue :keyword) #.16))
+
+(cffi:defcenum #.(cl-swig-lispify "CvColorConversionCodes" 'enumname)
+	(#.(cl-swig-lispify "COLOR_BGR2BGRA" 'enumvalue :keyword) #.0)
+	(#.(cl-swig-lispify "COLOR_RGB2RGBA" 'enumvalue :keyword) #.0)
+	(#.(cl-swig-lispify "COLOR_BGRA2BGR" 'enumvalue :keyword) #.1)
+	(#.(cl-swig-lispify "COLOR_RGBA2RGB" 'enumvalue :keyword) #.1)
+	(#.(cl-swig-lispify "COLOR_BGR2RGBA" 'enumvalue :keyword) #.2)
+	(#.(cl-swig-lispify "COLOR_RGB2BGRA" 'enumvalue :keyword) #.2)
+	(#.(cl-swig-lispify "COLOR_RGBA2BGR" 'enumvalue :keyword) #.3)
+	(#.(cl-swig-lispify "COLOR_BGRA2RGB" 'enumvalue :keyword) #.3)
+	(#.(cl-swig-lispify "COLOR_BGR2RGB" 'enumvalue :keyword) #.4)
+	(#.(cl-swig-lispify "COLOR_RGB2BGR" 'enumvalue :keyword) #.4)
+	(#.(cl-swig-lispify "COLOR_BGRA2RGBA" 'enumvalue :keyword) #.5)
+	(#.(cl-swig-lispify "COLOR_RGBA2BGRA" 'enumvalue :keyword) #.5)
+	(#.(cl-swig-lispify "COLOR_BGR2GRAY" 'enumvalue :keyword) #.6)
+	(#.(cl-swig-lispify "COLOR_RGB2GRAY" 'enumvalue :keyword) #.7)
+	(#.(cl-swig-lispify "COLOR_GRAY2BGR" 'enumvalue :keyword) #.8)
+	(#.(cl-swig-lispify "COLOR_GRAY2RGB" 'enumvalue :keyword) #.8)
+	(#.(cl-swig-lispify "COLOR_GRAY2BGRA" 'enumvalue :keyword) #.9)
+	(#.(cl-swig-lispify "COLOR_GRAY2RGBA" 'enumvalue :keyword) #.9)
+	(#.(cl-swig-lispify "COLOR_BGRA2GRAY" 'enumvalue :keyword) #.10)
+	(#.(cl-swig-lispify "COLOR_RGBA2GRAY" 'enumvalue :keyword) #.11)
+	(#.(cl-swig-lispify "COLOR_BGR2BGR565" 'enumvalue :keyword) #.12)
+	(#.(cl-swig-lispify "COLOR_RGB2BGR565" 'enumvalue :keyword) #.13)
+	(#.(cl-swig-lispify "COLOR_BGR5652BGR" 'enumvalue :keyword) #.14)
+	(#.(cl-swig-lispify "COLOR_BGR5652RGB" 'enumvalue :keyword) #.15)
+	(#.(cl-swig-lispify "COLOR_BGRA2BGR565" 'enumvalue :keyword) #.16)
+	(#.(cl-swig-lispify "COLOR_RGBA2BGR565" 'enumvalue :keyword) #.17)
+	(#.(cl-swig-lispify "COLOR_BGR5652BGRA" 'enumvalue :keyword) #.18)
+	(#.(cl-swig-lispify "COLOR_BGR5652RGBA" 'enumvalue :keyword) #.19)
+	(#.(cl-swig-lispify "COLOR_GRAY2BGR565" 'enumvalue :keyword) #.20)
+	(#.(cl-swig-lispify "COLOR_BGR5652GRAY" 'enumvalue :keyword) #.21)
+	(#.(cl-swig-lispify "COLOR_BGR2BGR555" 'enumvalue :keyword) #.22)
+	(#.(cl-swig-lispify "COLOR_RGB2BGR555" 'enumvalue :keyword) #.23)
+	(#.(cl-swig-lispify "COLOR_BGR5552BGR" 'enumvalue :keyword) #.24)
+	(#.(cl-swig-lispify "COLOR_BGR5552RGB" 'enumvalue :keyword) #.25)
+	(#.(cl-swig-lispify "COLOR_BGRA2BGR555" 'enumvalue :keyword) #.26)
+	(#.(cl-swig-lispify "COLOR_RGBA2BGR555" 'enumvalue :keyword) #.27)
+	(#.(cl-swig-lispify "COLOR_BGR5552BGRA" 'enumvalue :keyword) #.28)
+	(#.(cl-swig-lispify "COLOR_BGR5552RGBA" 'enumvalue :keyword) #.29)
+	(#.(cl-swig-lispify "COLOR_GRAY2BGR555" 'enumvalue :keyword) #.30)
+	(#.(cl-swig-lispify "COLOR_BGR5552GRAY" 'enumvalue :keyword) #.31)
+	(#.(cl-swig-lispify "COLOR_BGR2XYZ" 'enumvalue :keyword) #.32)
+	(#.(cl-swig-lispify "COLOR_RGB2XYZ" 'enumvalue :keyword) #.33)
+	(#.(cl-swig-lispify "COLOR_XYZ2BGR" 'enumvalue :keyword) #.34)
+	(#.(cl-swig-lispify "COLOR_XYZ2RGB" 'enumvalue :keyword) #.35)
+	(#.(cl-swig-lispify "COLOR_BGR2YCrCb" 'enumvalue :keyword) #.36)
+	(#.(cl-swig-lispify "COLOR_RGB2YCrCb" 'enumvalue :keyword) #.37)
+	(#.(cl-swig-lispify "COLOR_YCrCb2BGR" 'enumvalue :keyword) #.38)
+	(#.(cl-swig-lispify "COLOR_YCrCb2RGB" 'enumvalue :keyword) #.39)
+	(#.(cl-swig-lispify "COLOR_BGR2HSV" 'enumvalue :keyword) #.40)
+	(#.(cl-swig-lispify "COLOR_RGB2HSV" 'enumvalue :keyword) #.41)
+	(#.(cl-swig-lispify "COLOR_BGR2Lab" 'enumvalue :keyword) #.44)
+	(#.(cl-swig-lispify "COLOR_RGB2Lab" 'enumvalue :keyword) #.45)
+	(#.(cl-swig-lispify "COLOR_BGR2Luv" 'enumvalue :keyword) #.50)
+	(#.(cl-swig-lispify "COLOR_RGB2Luv" 'enumvalue :keyword) #.51)
+	(#.(cl-swig-lispify "COLOR_BGR2HLS" 'enumvalue :keyword) #.52)
+	(#.(cl-swig-lispify "COLOR_RGB2HLS" 'enumvalue :keyword) #.53)
+	(#.(cl-swig-lispify "COLOR_HSV2BGR" 'enumvalue :keyword) #.54)
+	(#.(cl-swig-lispify "COLOR_HSV2RGB" 'enumvalue :keyword) #.55)
+	(#.(cl-swig-lispify "COLOR_Lab2BGR" 'enumvalue :keyword) #.56)
+	(#.(cl-swig-lispify "COLOR_Lab2RGB" 'enumvalue :keyword) #.57)
+	(#.(cl-swig-lispify "COLOR_Luv2BGR" 'enumvalue :keyword) #.58)
+	(#.(cl-swig-lispify "COLOR_Luv2RGB" 'enumvalue :keyword) #.59)
+	(#.(cl-swig-lispify "COLOR_HLS2BGR" 'enumvalue :keyword) #.60)
+	(#.(cl-swig-lispify "COLOR_HLS2RGB" 'enumvalue :keyword) #.61)
+	(#.(cl-swig-lispify "COLOR_BGR2HSV_FULL" 'enumvalue :keyword) #.66)
+	(#.(cl-swig-lispify "COLOR_RGB2HSV_FULL" 'enumvalue :keyword) #.67)
+	(#.(cl-swig-lispify "COLOR_BGR2HLS_FULL" 'enumvalue :keyword) #.68)
+	(#.(cl-swig-lispify "COLOR_RGB2HLS_FULL" 'enumvalue :keyword) #.69)
+	(#.(cl-swig-lispify "COLOR_HSV2BGR_FULL" 'enumvalue :keyword) #.70)
+	(#.(cl-swig-lispify "COLOR_HSV2RGB_FULL" 'enumvalue :keyword) #.71)
+	(#.(cl-swig-lispify "COLOR_HLS2BGR_FULL" 'enumvalue :keyword) #.72)
+	(#.(cl-swig-lispify "COLOR_HLS2RGB_FULL" 'enumvalue :keyword) #.73)
+	(#.(cl-swig-lispify "COLOR_LBGR2Lab" 'enumvalue :keyword) #.74)
+	(#.(cl-swig-lispify "COLOR_LRGB2Lab" 'enumvalue :keyword) #.75)
+	(#.(cl-swig-lispify "COLOR_LBGR2Luv" 'enumvalue :keyword) #.76)
+	(#.(cl-swig-lispify "COLOR_LRGB2Luv" 'enumvalue :keyword) #.77)
+	(#.(cl-swig-lispify "COLOR_Lab2LBGR" 'enumvalue :keyword) #.78)
+	(#.(cl-swig-lispify "COLOR_Lab2LRGB" 'enumvalue :keyword) #.79)
+	(#.(cl-swig-lispify "COLOR_Luv2LBGR" 'enumvalue :keyword) #.80)
+	(#.(cl-swig-lispify "COLOR_Luv2LRGB" 'enumvalue :keyword) #.81)
+	(#.(cl-swig-lispify "COLOR_BGR2YUV" 'enumvalue :keyword) #.82)
+	(#.(cl-swig-lispify "COLOR_RGB2YUV" 'enumvalue :keyword) #.83)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR" 'enumvalue :keyword) #.84)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB" 'enumvalue :keyword) #.85)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_NV12" 'enumvalue :keyword) #.90)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_NV12" 'enumvalue :keyword) #.91)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_NV21" 'enumvalue :keyword) #.92)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_NV21" 'enumvalue :keyword) #.93)
+	(#.(cl-swig-lispify "COLOR_YUV420sp2RGB" 'enumvalue :keyword) #.92)
+	(#.(cl-swig-lispify "COLOR_YUV420sp2BGR" 'enumvalue :keyword) #.93)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_NV12" 'enumvalue :keyword) #.94)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_NV12" 'enumvalue :keyword) #.95)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_NV21" 'enumvalue :keyword) #.96)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_NV21" 'enumvalue :keyword) #.97)
+	(#.(cl-swig-lispify "COLOR_YUV420sp2RGBA" 'enumvalue :keyword) #.96)
+	(#.(cl-swig-lispify "COLOR_YUV420sp2BGRA" 'enumvalue :keyword) #.97)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_YV12" 'enumvalue :keyword) #.98)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_YV12" 'enumvalue :keyword) #.99)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_IYUV" 'enumvalue :keyword) #.100)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_IYUV" 'enumvalue :keyword) #.101)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_I420" 'enumvalue :keyword) #.100)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_I420" 'enumvalue :keyword) #.101)
+	(#.(cl-swig-lispify "COLOR_YUV420p2RGB" 'enumvalue :keyword) #.98)
+	(#.(cl-swig-lispify "COLOR_YUV420p2BGR" 'enumvalue :keyword) #.99)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_YV12" 'enumvalue :keyword) #.102)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_YV12" 'enumvalue :keyword) #.103)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_IYUV" 'enumvalue :keyword) #.104)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_IYUV" 'enumvalue :keyword) #.105)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_I420" 'enumvalue :keyword) #.104)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_I420" 'enumvalue :keyword) #.105)
+	(#.(cl-swig-lispify "COLOR_YUV420p2RGBA" 'enumvalue :keyword) #.102)
+	(#.(cl-swig-lispify "COLOR_YUV420p2BGRA" 'enumvalue :keyword) #.103)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_420" 'enumvalue :keyword) #.106)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_NV21" 'enumvalue :keyword) #.106)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_NV12" 'enumvalue :keyword) #.106)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_YV12" 'enumvalue :keyword) #.106)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_IYUV" 'enumvalue :keyword) #.106)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_I420" 'enumvalue :keyword) #.106)
+	(#.(cl-swig-lispify "COLOR_YUV420sp2GRAY" 'enumvalue :keyword) #.106)
+	(#.(cl-swig-lispify "COLOR_YUV420p2GRAY" 'enumvalue :keyword) #.106)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_UYVY" 'enumvalue :keyword) #.107)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_UYVY" 'enumvalue :keyword) #.108)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_Y422" 'enumvalue :keyword) #.108)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_Y422" 'enumvalue :keyword) #.108)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_UYNV" 'enumvalue :keyword) #.108)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_UYNV" 'enumvalue :keyword) #.108)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_UYVY" 'enumvalue :keyword) #.111)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_UYVY" 'enumvalue :keyword) #.112)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_Y422" 'enumvalue :keyword) #.111)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_Y422" 'enumvalue :keyword) #.112)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_UYNV" 'enumvalue :keyword) #.111)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_UYNV" 'enumvalue :keyword) #.112)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_YUY2" 'enumvalue :keyword) #.115)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_YUY2" 'enumvalue :keyword) #.116)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_YVYU" 'enumvalue :keyword) #.117)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_YVYU" 'enumvalue :keyword) #.118)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_YUYV" 'enumvalue :keyword) #.115)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_YUYV" 'enumvalue :keyword) #.116)
+	(#.(cl-swig-lispify "COLOR_YUV2RGB_YUNV" 'enumvalue :keyword) #.115)
+	(#.(cl-swig-lispify "COLOR_YUV2BGR_YUNV" 'enumvalue :keyword) #.116)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_YUY2" 'enumvalue :keyword) #.119)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_YUY2" 'enumvalue :keyword) #.120)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_YVYU" 'enumvalue :keyword) #.121)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_YVYU" 'enumvalue :keyword) #.122)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_YUYV" 'enumvalue :keyword) #.119)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_YUYV" 'enumvalue :keyword) #.120)
+	(#.(cl-swig-lispify "COLOR_YUV2RGBA_YUNV" 'enumvalue :keyword) #.119)
+	(#.(cl-swig-lispify "COLOR_YUV2BGRA_YUNV" 'enumvalue :keyword) #.120)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_UYVY" 'enumvalue :keyword) #.123)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_YUY2" 'enumvalue :keyword) #.124)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_Y422" 'enumvalue :keyword) #.123)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_UYNV" 'enumvalue :keyword) #.123)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_YVYU" 'enumvalue :keyword) #.124)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_YUYV" 'enumvalue :keyword) #.124)
+	(#.(cl-swig-lispify "COLOR_YUV2GRAY_YUNV" 'enumvalue :keyword) #.124)
+	(#.(cl-swig-lispify "COLOR_RGBA2mRGBA" 'enumvalue :keyword) #.125)
+	(#.(cl-swig-lispify "COLOR_mRGBA2RGBA" 'enumvalue :keyword) #.126)
+	(#.(cl-swig-lispify "COLOR_RGB2YUV_I420" 'enumvalue :keyword) #.127)
+	(#.(cl-swig-lispify "COLOR_BGR2YUV_I420" 'enumvalue :keyword) #.128)
+	(#.(cl-swig-lispify "COLOR_RGB2YUV_IYUV" 'enumvalue :keyword) #.127)
+	(#.(cl-swig-lispify "COLOR_BGR2YUV_IYUV" 'enumvalue :keyword) #.128)
+	(#.(cl-swig-lispify "COLOR_RGBA2YUV_I420" 'enumvalue :keyword) #.129)
+	(#.(cl-swig-lispify "COLOR_BGRA2YUV_I420" 'enumvalue :keyword) #.130)
+	(#.(cl-swig-lispify "COLOR_RGBA2YUV_IYUV" 'enumvalue :keyword) #.129)
+	(#.(cl-swig-lispify "COLOR_BGRA2YUV_IYUV" 'enumvalue :keyword) #.130)
+	(#.(cl-swig-lispify "COLOR_RGB2YUV_YV12" 'enumvalue :keyword) #.131)
+	(#.(cl-swig-lispify "COLOR_BGR2YUV_YV12" 'enumvalue :keyword) #.132)
+	(#.(cl-swig-lispify "COLOR_RGBA2YUV_YV12" 'enumvalue :keyword) #.133)
+	(#.(cl-swig-lispify "COLOR_BGRA2YUV_YV12" 'enumvalue :keyword) #.134)
+	(#.(cl-swig-lispify "COLOR_BayerBG2BGR" 'enumvalue :keyword) #.46)
+	(#.(cl-swig-lispify "COLOR_BayerGB2BGR" 'enumvalue :keyword) #.47)
+	(#.(cl-swig-lispify "COLOR_BayerRG2BGR" 'enumvalue :keyword) #.48)
+	(#.(cl-swig-lispify "COLOR_BayerGR2BGR" 'enumvalue :keyword) #.49)
+	(#.(cl-swig-lispify "COLOR_BayerBG2RGB" 'enumvalue :keyword) #.48)
+	(#.(cl-swig-lispify "COLOR_BayerGB2RGB" 'enumvalue :keyword) #.49)
+	(#.(cl-swig-lispify "COLOR_BayerRG2RGB" 'enumvalue :keyword) #.46)
+	(#.(cl-swig-lispify "COLOR_BayerGR2RGB" 'enumvalue :keyword) #.47)
+	(#.(cl-swig-lispify "COLOR_BayerBG2GRAY" 'enumvalue :keyword) #.86)
+	(#.(cl-swig-lispify "COLOR_BayerGB2GRAY" 'enumvalue :keyword) #.87)
+	(#.(cl-swig-lispify "COLOR_BayerRG2GRAY" 'enumvalue :keyword) #.88)
+	(#.(cl-swig-lispify "COLOR_BayerGR2GRAY" 'enumvalue :keyword) #.89)
+	(#.(cl-swig-lispify "COLOR_BayerBG2BGR_VNG" 'enumvalue :keyword) #.62)
+	(#.(cl-swig-lispify "COLOR_BayerGB2BGR_VNG" 'enumvalue :keyword) #.63)
+	(#.(cl-swig-lispify "COLOR_BayerRG2BGR_VNG" 'enumvalue :keyword) #.64)
+	(#.(cl-swig-lispify "COLOR_BayerGR2BGR_VNG" 'enumvalue :keyword) #.65)
+	(#.(cl-swig-lispify "COLOR_BayerBG2RGB_VNG" 'enumvalue :keyword) #.64)
+	(#.(cl-swig-lispify "COLOR_BayerGB2RGB_VNG" 'enumvalue :keyword) #.65)
+	(#.(cl-swig-lispify "COLOR_BayerRG2RGB_VNG" 'enumvalue :keyword) #.62)
+	(#.(cl-swig-lispify "COLOR_BayerGR2RGB_VNG" 'enumvalue :keyword) #.63)
+	(#.(cl-swig-lispify "COLOR_BayerBG2BGR_EA" 'enumvalue :keyword) #.135)
+	(#.(cl-swig-lispify "COLOR_BayerGB2BGR_EA" 'enumvalue :keyword) #.136)
+	(#.(cl-swig-lispify "COLOR_BayerRG2BGR_EA" 'enumvalue :keyword) #.137)
+	(#.(cl-swig-lispify "COLOR_BayerGR2BGR_EA" 'enumvalue :keyword) #.138)
+	(#.(cl-swig-lispify "COLOR_BayerBG2RGB_EA" 'enumvalue :keyword) #.137)
+	(#.(cl-swig-lispify "COLOR_BayerGB2RGB_EA" 'enumvalue :keyword) #.138)
+	(#.(cl-swig-lispify "COLOR_BayerRG2RGB_EA" 'enumvalue :keyword) #.135)
+	(#.(cl-swig-lispify "COLOR_BayerGR2RGB_EA" 'enumvalue :keyword) #.136)
+	(#.(cl-swig-lispify "COLOR_BayerBG2BGRA" 'enumvalue :keyword) #.139)
+	(#.(cl-swig-lispify "COLOR_BayerGB2BGRA" 'enumvalue :keyword) #.140)
+	(#.(cl-swig-lispify "COLOR_BayerRG2BGRA" 'enumvalue :keyword) #.141)
+	(#.(cl-swig-lispify "COLOR_BayerGR2BGRA" 'enumvalue :keyword) #.142)
+	(#.(cl-swig-lispify "COLOR_BayerBG2RGBA" 'enumvalue :keyword) #.141)
+	(#.(cl-swig-lispify "COLOR_BayerGB2RGBA" 'enumvalue :keyword) #.142)
+	(#.(cl-swig-lispify "COLOR_BayerRG2RGBA" 'enumvalue :keyword) #.139)
+	(#.(cl-swig-lispify "COLOR_BayerGR2RGBA" 'enumvalue :keyword) #.140)
+	(#.(cl-swig-lispify "COLOR_COLORCVT_MAX" 'enumvalue :keyword) #.143))
+
+(cffi:defcenum #.(cl-swig-lispify "CvInterpolationFlags" 'enumname)
+	(#.(cl-swig-lispify "INTER_NEAREST" 'enumvalue :keyword) #.0)
+	(#.(cl-swig-lispify "INTER_LINEAR" 'enumvalue :keyword) #.1)
+	(#.(cl-swig-lispify "INTER_CUBIC" 'enumvalue :keyword) #.2)
+	(#.(cl-swig-lispify "INTER_AREA" 'enumvalue :keyword) #.3)
+	(#.(cl-swig-lispify "INTER_LANCZOS4" 'enumvalue :keyword) #.4)
+	(#.(cl-swig-lispify "INTER_LINEAR_EXACT" 'enumvalue :keyword) #.5)
+	(#.(cl-swig-lispify "INTER_MAX" 'enumvalue :keyword) #.7)
+	(#.(cl-swig-lispify "WARP_FILL_OUTLIERS" 'enumvalue :keyword) #.8)
+	(#.(cl-swig-lispify "WARP_INVERSE_MAP" 'enumvalue :keyword) #.16))
 
 (cffi:defcfun ("cv_cvt_color" #.(cl-swig-lispify "cv_cvt_color" 'function)) :bool
   (src :pointer)
@@ -794,6 +996,21 @@
   (vw :pointer)
   (img :pointer))
 
+(cffi:defcenum #.(cl-swig-lispify "CvBackend" 'enumname)
+	#.(cl-swig-lispify "DNN_BACKEND_DEFAULT" 'enumvalue :keyword)
+	#.(cl-swig-lispify "DNN_BACKEND_HALIDE" 'enumvalue :keyword)
+	#.(cl-swig-lispify "DNN_BACKEND_INFERENCE_ENGINE" 'enumvalue :keyword)
+	#.(cl-swig-lispify "DNN_BACKEND_OPENCV" 'enumvalue :keyword)
+	#.(cl-swig-lispify "DNN_BACKEND_VKCOM" 'enumvalue :keyword))
+
+(cffi:defcenum #.(cl-swig-lispify "CvTarget" 'enumname)
+	#.(cl-swig-lispify "DNN_TARGET_CPU" 'enumvalue :keyword)
+	#.(cl-swig-lispify "DNN_TARGET_OPENCL" 'enumvalue :keyword)
+	#.(cl-swig-lispify "DNN_TARGET_OPENCL_FP16" 'enumvalue :keyword)
+	#.(cl-swig-lispify "DNN_TARGET_MYRIAD" 'enumvalue :keyword)
+	#.(cl-swig-lispify "DNN_TARGET_VULKAN" 'enumvalue :keyword)
+	#.(cl-swig-lispify "DNN_TARGET_FPGA" 'enumvalue :keyword))
+
 (cffi:defcfun ("cv_dnn_read_net" #.(cl-swig-lispify "cv_dnn_read_net" 'function)) :pointer
   (model :string)
   (config :string)
@@ -812,21 +1029,19 @@
   (scale_factor :double)
   (mean :pointer))
 
-(cffi:defcfun ("cv_dnn_net_forward" #.(cl-swig-lispify "cv_dnn_net_forward" 'function)) :bool
+(cffi:defcfun ("cv_dnn_net_forward" #.(cl-swig-lispify "cv_dnn_net_forward" 'function)) :pointer
   (net :pointer)
-  (output_name :string)
-  (output_blob :pointer))
+  (output_name :string))
 
-(cffi:defcfun ("cv_dnn_net_forward_layers" #.(cl-swig-lispify "cv_dnn_net_forward_layers" 'function)) :bool
+(cffi:defcfun ("cv_dnn_net_forward_layers" #.(cl-swig-lispify "cv_dnn_net_forward_layers" 'function)) :pointer
   (net :pointer)
-  (layer_names :pointer)
-  (out_blobs :pointer))
+  (layer_names :pointer))
 
-(cffi:defcfun ("cv_dnn_net_set_preferable_backend" #.(cl-swig-lispify "cv_dnn_net_set_preferable_backend" 'function)) :void
+(cffi:defcfun ("cv_dnn_net_set_preferable_backend" #.(cl-swig-lispify "cv_dnn_net_set_preferable_backend" 'function)) :bool
   (net :pointer)
   (backend :int))
 
-(cffi:defcfun ("cv_dnn_net_set_preferable_target" #.(cl-swig-lispify "cv_dnn_net_set_preferable_target" 'function)) :void
+(cffi:defcfun ("cv_dnn_net_set_preferable_target" #.(cl-swig-lispify "cv_dnn_net_set_preferable_target" 'function)) :bool
   (net :pointer)
   (target :int))
 
@@ -847,12 +1062,23 @@
 (cffi:defcfun ("cv_dnn_net_get_layer_names" #.(cl-swig-lispify "cv_dnn_net_get_layer_names" 'function)) :pointer
   (net :pointer))
 
-(cffi:defcfun ("cv_dnn_net_get_layer" #.(cl-swig-lispify "cv_dnn_net_get_layer" 'function)) :pointer
+(cffi:defcfun ("cv_dnn_net_get_layer_with_name" #.(cl-swig-lispify "cv_dnn_net_get_layer_with_name" 'function)) :pointer
   (net :pointer)
-  (layerId :int))
+  (layer_name :string))
+
+(cffi:defcfun ("cv_dnn_net_get_layer_with_id" #.(cl-swig-lispify "cv_dnn_net_get_layer_with_id" 'function)) :pointer
+  (net :pointer)
+  (layer_id :int))
 
 (cffi:defcfun ("cv_dnn_layer_free" #.(cl-swig-lispify "cv_dnn_layer_free" 'function)) :void
   (layer :pointer))
+
+(cffi:defcfun ("cv_dnn_layer_blobs" #.(cl-swig-lispify "cv_dnn_layer_blobs" 'function)) :pointer
+  (layer :pointer))
+
+(cffi:defcfun ("cv_dnn_layer_add_blob" #.(cl-swig-lispify "cv_dnn_layer_add_blob" 'function)) :bool
+  (layer :pointer)
+  (blob :pointer))
 
 (cffi:defcfun ("cv_dnn_layer_input_name_to_index" #.(cl-swig-lispify "cv_dnn_layer_input_name_to_index" 'function)) :int
   (layer :pointer)
@@ -875,5 +1101,10 @@
   (nms_threshold :float)
   (eta :float)
   (top_k :int))
+
+(cffi:defcenum #.(cl-swig-lispify "CvInterpolationWarp" 'enumname)
+	(#.(cl-swig-lispify "WARP_NONE" 'enumvalue :keyword) #.0)
+	(#.(cl-swig-lispify "WARP_FILL_OUTLIERS" 'enumvalue :keyword) #.8)
+	(#.(cl-swig-lispify "WARP_INVERSE_MAP" 'enumvalue :keyword) #.16))
 
 

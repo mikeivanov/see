@@ -240,3 +240,9 @@
 @export
 (defmethod add ((mat mat) (addendum number))
   (add mat (scalar addendum)))
+
+@export
+(defmethod mul ((mat mat) (multiplier number))
+  (check-cv-error #'null
+                  (cv-mat-mul-const (peer mat) multiplier))
+  mat)

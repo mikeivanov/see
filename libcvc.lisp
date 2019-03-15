@@ -502,6 +502,10 @@
   (mat :pointer)
   (addendum :pointer))
 
+(cffi:defcfun ("cv_mat_mul_const" #.(cl-swig-lispify "cv_mat_mul_const" 'function)) :bool
+  (mat :pointer)
+  (multiplier :double))
+
 (cffi:defcenum #.(cl-swig-lispify "CvImreadModes" 'enumname)
 	(#.(cl-swig-lispify "IMREAD_UNCHANGED" 'enumvalue :keyword) #.-1)
 	(#.(cl-swig-lispify "IMREAD_GRAYSCALE" 'enumvalue :keyword) #.0)
@@ -857,6 +861,11 @@
   (thickness :int)
   (line_type :int)
   (bottom_left_origin :bool))
+
+(cffi:defcfun ("cv_median_blur" #.(cl-swig-lispify "cv_median_blur" 'function)) :bool
+  (input :pointer)
+  (output :pointer)
+  (ksize :int))
 
 (cffi:defcfun ("cv_named_window" #.(cl-swig-lispify "cv_named_window" 'function)) :void
   (winname :string)

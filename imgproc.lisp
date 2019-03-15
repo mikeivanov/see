@@ -5,6 +5,15 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
+;; Filters -----------------------------
+
+@export
+(defun median-blur (img amount &key target)
+  (let ((out (or target (mat-new-empty))))
+    (check-cv-error #'null
+                    (cv-median-blur (peer img) (peer out) amount))
+    out))
+
 ;; Transforms ---------------------------
 
 @export

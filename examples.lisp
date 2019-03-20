@@ -1,2 +1,2 @@
 (in-package :cl-user)
-(defpackage :see.examples (:use :common-lisp :see))
+(defpackage :see.examples (:use :common-lisp :see :alexandria))

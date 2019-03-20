@@ -367,6 +367,9 @@
 
 (cffi:defcfun ("cv_mats_new" #.(cl-swig-lispify "cv_mats_new" 'function)) :pointer)
 
+(cffi:defcfun ("cv_mats_new_copy" #.(cl-swig-lispify "cv_mats_new_copy" 'function)) :pointer
+  (self :pointer))
+
 (cffi:defcfun ("cv_mats_new_with_data" #.(cl-swig-lispify "cv_mats_new_with_data" 'function)) :pointer
   (size :int)
   (data :pointer))
@@ -397,6 +400,9 @@
 
 (cffi:defcfun ("cv_mat_new" #.(cl-swig-lispify "cv_mat_new" 'function)) :pointer)
 
+(cffi:defcfun ("cv_mat_new_copy" #.(cl-swig-lispify "cv_mat_new_copy" 'function)) :pointer
+  (self :pointer))
+
 (cffi:defcfun ("cv_mat_new_with_scalar" #.(cl-swig-lispify "cv_mat_new_with_scalar" 'function)) :pointer
   (shape :pointer)
   (type :int)
@@ -407,8 +413,9 @@
   (type :int)
   (data :pointer))
 
-(cffi:defcfun ("cv_mat_copy" #.(cl-swig-lispify "cv_mat_copy" 'function)) :pointer
-  (self :pointer))
+(cffi:defcfun ("cv_mat_new_with_roi" #.(cl-swig-lispify "cv_mat_new_with_roi" 'function)) :pointer
+  (self :pointer)
+  (roi :pointer))
 
 (cffi:defcfun ("cv_mat_free" #.(cl-swig-lispify "cv_mat_free" 'function)) :void
   (m :pointer))
@@ -498,6 +505,10 @@
 (cffi:defcfun ("cv_merge" #.(cl-swig-lispify "cv_merge" 'function)) :pointer
   (channels :pointer))
 
+(cffi:defcfun ("cv_mat_add_mat" #.(cl-swig-lispify "cv_mat_add_mat" 'function)) :bool
+  (mat :pointer)
+  (addendum :pointer))
+
 (cffi:defcfun ("cv_mat_add_scalar" #.(cl-swig-lispify "cv_mat_add_scalar" 'function)) :bool
   (mat :pointer)
   (addendum :pointer))
@@ -505,6 +516,11 @@
 (cffi:defcfun ("cv_mat_mul_const" #.(cl-swig-lispify "cv_mat_mul_const" 'function)) :bool
   (mat :pointer)
   (multiplier :double))
+
+(cffi:defcfun ("cv_mat_dot" #.(cl-swig-lispify "cv_mat_dot" 'function)) :bool
+  (self :pointer)
+  (m :pointer)
+  (out :pointer))
 
 (cffi:defcenum #.(cl-swig-lispify "CvImreadModes" 'enumname)
 	(#.(cl-swig-lispify "IMREAD_UNCHANGED" 'enumvalue :keyword) #.-1)
@@ -867,6 +883,28 @@
   (output :pointer)
   (ksize :int))
 
+(cffi:defcenum #.(cl-swig-lispify "CvMouseEventTypes" 'enumname)
+	(#.(cl-swig-lispify "EVENT_MOUSEMOVE" 'enumvalue :keyword) #.0)
+	(#.(cl-swig-lispify "EVENT_LBUTTONDOWN" 'enumvalue :keyword) #.1)
+	(#.(cl-swig-lispify "EVENT_RBUTTONDOWN" 'enumvalue :keyword) #.2)
+	(#.(cl-swig-lispify "EVENT_MBUTTONDOWN" 'enumvalue :keyword) #.3)
+	(#.(cl-swig-lispify "EVENT_LBUTTONUP" 'enumvalue :keyword) #.4)
+	(#.(cl-swig-lispify "EVENT_RBUTTONUP" 'enumvalue :keyword) #.5)
+	(#.(cl-swig-lispify "EVENT_MBUTTONUP" 'enumvalue :keyword) #.6)
+	(#.(cl-swig-lispify "EVENT_LBUTTONDBLCLK" 'enumvalue :keyword) #.7)
+	(#.(cl-swig-lispify "EVENT_RBUTTONDBLCLK" 'enumvalue :keyword) #.8)
+	(#.(cl-swig-lispify "EVENT_MBUTTONDBLCLK" 'enumvalue :keyword) #.9)
+	(#.(cl-swig-lispify "EVENT_MOUSEWHEEL" 'enumvalue :keyword) #.10)
+	(#.(cl-swig-lispify "EVENT_MOUSEHWHEEL" 'enumvalue :keyword) #.11))
+
+(cffi:defcenum #.(cl-swig-lispify "CvMouseEventFlags" 'enumname)
+	(#.(cl-swig-lispify "EVENT_FLAG_LBUTTON" 'enumvalue :keyword) #.1)
+	(#.(cl-swig-lispify "EVENT_FLAG_RBUTTON" 'enumvalue :keyword) #.2)
+	(#.(cl-swig-lispify "EVENT_FLAG_MBUTTON" 'enumvalue :keyword) #.4)
+	(#.(cl-swig-lispify "EVENT_FLAG_CTRLKEY" 'enumvalue :keyword) #.8)
+	(#.(cl-swig-lispify "EVENT_FLAG_SHIFTKEY" 'enumvalue :keyword) #.16)
+	(#.(cl-swig-lispify "EVENT_FLAG_ALTKEY" 'enumvalue :keyword) #.32))
+
 (cffi:defcfun ("cv_named_window" #.(cl-swig-lispify "cv_named_window" 'function)) :void
   (winname :string)
   (flags :int))
@@ -905,6 +943,11 @@
   (winname :string)
   (width :int)
   (height :int))
+
+(cffi:defcfun ("cv_set_mouse_callback" #.(cl-swig-lispify "cv_set_mouse_callback" 'function)) :bool
+  (winname :string)
+  (on_mouse :pointer)
+  (userdata :pointer))
 
 (cffi:defcenum #.(cl-swig-lispify "CvVideoCaptureAPIs" 'enumname)
 	(#.(cl-swig-lispify "CAP_ANY" 'enumvalue :keyword) #.0)

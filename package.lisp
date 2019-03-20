@@ -3,4 +3,4 @@
 ;; in the top-level directory of this distribution.
 
 (in-package :cl-user)
-(defpackage :see (:use :common-lisp))
+(defpackage :see (:use :common-lisp :alexandria))

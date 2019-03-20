@@ -13,7 +13,8 @@
                :trivial-main-thread
                :trivial-garbage
                :trivial-backtrace
-               :cl-annot)
+               :cl-annot
+               :alexandria)
   :components ((:file "package")
                (:file "libcvc" :depends-on ("package"))
                (:file "util")

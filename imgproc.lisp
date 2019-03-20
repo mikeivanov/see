@@ -89,3 +89,18 @@
                    (cffi:foreign-enum-value 'cv-line-types line-type)
                    bottom-left-origin)
       mat)))
+
+@export
+(defun draw-rectangle (img rect &key
+                                  (color (scalar))
+                                  (thickness 1)
+                                  (line-type 8)
+                                  (shift 0))
+  (with-foreign-resource (cr (rect-to-cv rect))
+    (with-foreign-resource (cc (scalar-to-cv color))
+      (cv-rectangle (peer img)
+                    cr
+                    cc
+                    thickness
+                    line-type
+                    shift))))

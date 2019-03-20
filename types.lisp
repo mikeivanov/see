@@ -126,7 +126,6 @@
 
 ;; Point -----------------------------------
 
-
 @export
 (defclass point ()
   ((x :initarg :x :reader x)
@@ -158,6 +157,39 @@
 (defun points-from-cv (cpoints)
   (loop for i from 0 below (cv-points-count cpoints)
         collect (point-from-cv (cv-points-get cpoints i))))
+
+;; Rect -----------------------------------
+
+@export
+(defclass rect ()
+  ((x :initarg :x :reader x)
+   (y :initarg :y :reader y)
+   (width :initarg :width :reader width)
+   (height :initarg :height :reader height)))
+
+@export
+(defun rect (&optional x y w h)
+  (make-instance 'rect
+                 :x (as-single-float (or x 0s0))
+                 :y (as-single-float (or y x 0s0))
+                 :width (as-single-float (or w 0s0))
+                 :height (as-single-float (or h w 0s0))
+                 ))
+
+(defmethod print-object ((r rect) out)
+  (print-unreadable-object (r out :type t)
+    (with-slots (x y width height) r
+      (format out "((~s, ~s) (~s x ~s))" x y width height))))
+
+(defun rect-to-cv (rect)
+  (with-slots (x y width height) rect
+    (cv-rect-new x y width height)))
+
+(defun rect-from-cv (crect)
+  (rect (cv-rect-x crect)
+        (cv-rect-y crect)
+        (cv-rect-width crect)
+        (cv-rect-height crect)))
 
 ;; RotatedRect -------------------------
 

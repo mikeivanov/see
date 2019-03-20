@@ -34,7 +34,9 @@
   ((ref :reader peer-ref)))
 
 (defun peer (proxy)
-  (deref (peer-ref proxy)))
+  (let ((resource (deref (peer-ref proxy))))
+    (assert (not (null resource)))
+    resource))
 
 (defmethod release ((proxy proxy))
   (release (peer-ref proxy)))
@@ -45,11 +47,6 @@
     (trivial-garbage:finalize proxy
                               (lambda () (release ref))))
   proxy)
-
-@export
-(defun xor (a b)
-  (and (or a b)
-       (not (and a b))))
 
 (defun free-foreign-array-contents (arr count)
   (dotimes (i count)
@@ -98,6 +95,9 @@
         (cv-clear-error)
         (error 'cv-error :message error))
       value))
+
+(defmacro cv-call (fn &rest args)
+  `(check-cv-error #'null (funcall ,fn ,@args)))
 
 (defmacro with-foreign-resource ((name init &key (free 'cffi:foreign-free)) &body body)
   `(let ((,name ,init))
@@ -150,3 +150,9 @@
   (make-array shape
               :displaced-to array
               :element-type (array-element-type array)))
+
+@export
+(defun string-strip (string)
+  (string-trim '(#\Space #\Newline #\Backspace #\Tab
+                 #\Linefeed #\Page #\Return #\Rubout)
+               string))

@@ -11,5 +11,6 @@
   :depends-on (:see
                :unix-opts
                :parse-number
-               :cl-csv)
+               :cl-csv
+               :alexandria)
   :components ((:file "examples")))

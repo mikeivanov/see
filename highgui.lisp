@@ -5,27 +5,60 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
-@export
-(defclass window ()
-  ((name :initarg :name :reader window-name)))
+(defvar *windows* (make-hash-table :test 'equal))
+
+(cffi:defcallback %on-mouse :bool ((event :int) (x :int) (y :int)
+                                   (flags :int) (userdata :pointer))
+  (let* ((name   (cffi:foreign-string-to-lisp userdata))
+         (window (gethash name *windows*)))
+    (when window
+      (when-let (slot-value window 'on-mouse)
+        (let ((event-kw (cffi:foreign-enum-keyword 'cv-mouse-event-types event)))
+          (funcall on-mouse window event-kw x y flags))))))
 
 @export
-(defun make-window (name)
-  (let ((window (make-instance 'window :name name)))
+(defun set-mouse-callback (window fn)
+  (with-slots (on-mouse) window
+    (setf on-mouse fn)))
+
+@export
+(defclass window ()
+  ((name :initarg :name :reader window-name)
+   (id :initarg :id)
+   (on-mouse :initarg :on-mouse :initform nil)))
+
+@export
+(defun make-window (name &key on-mouse)
+  (assert (null (gethash name *windows*)))
+  (let* ((id (cffi:foreign-string-alloc name))
+         (window (make-instance 'window :name name :id id)))
     (cv-named-window name 0)
+    (cv-set-mouse-callback name (cffi:callback %on-mouse) id)
+    (when on-mouse
+      (set-mouse-callback window on-mouse))
+    (setf (gethash name *windows*) window)
     window))
 
 (defmethod release ((window window))
-  (cv-destroy-window (window-name window)))
+  (with-slots (id name) window
+    (when id
+      (cffi:foreign-string-free id)
+      (setf id nil))
+    (set-mouse-callback window nil)
+    (remhash name *windows*)
+    (cv-destroy-window name)))
 
 @export
 (defun destroy-all-windows ()
+  (loop for w in (hash-table-values *windows*)
+        do (release w))
+  (clrhash *windows*)
   (cv-destroy-all-windows))
 
 @export
-(defun show-image (window mat)
+(defun show-image (window image)
   (cv-imshow (window-name window)
-             (peer mat)))
+             (peer image)))
 
 @export
 (defun wait-key (&key (delay 0))
@@ -39,10 +72,10 @@
       -1)))
 
 @export
-(defun open-window (on-update &key (delay 50) (name "") (blocking t))
+(defun open-window (on-update &key (delay 50) (name "") (blocking t) on-mouse)
   (trivial-main-thread:with-body-in-main-thread (:blocking blocking)
     (handler-case
-        (let ((win (make-window name)))
+        (let ((win (make-window name :on-mouse on-mouse)))
           (unwind-protect
                (loop for key = -1 then (wait-key :delay delay)
                      while (funcall on-update win key))
@@ -52,13 +85,15 @@
           (format t "ERROR: ~s~%" e)
           (trivial-backtrace:print-backtrace e))))))
 
+
 @export
-(defmacro with-open-window (((handle key) &key (name "") (delay 50) (blocking t))
+(defmacro with-open-window (((handle key) &key (name "") (delay 50) (blocking t) on-mouse)
                             &body forms)
   `(open-window (lambda (,handle ,key) ,@forms)
                 :name ,name
                 :delay ,delay
-                :blocking ,blocking))
+                :blocking ,blocking
+                :on-mouse ,on-mouse))
 
 @export
 (defun view-image (img)

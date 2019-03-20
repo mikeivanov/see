@@ -86,15 +86,17 @@
 
 (defun forward-layers (net names)
   (with-foreign-resource (cnames (strings-to-cv names)
-                          :free cv-strings-free)
+                                 :free cv-strings-free)
     (let ((cblobs (cv-dnn-net-forward-layers (peer net) cnames)))
       (check-cv-error #'cffi:null-pointer-p cblobs)
       (with-foreign-resource (cblobs cblobs
-                              :free cv-mats-free)
+                                     :free cv-mats-free)
         (mats-from-cv cblobs)))))
 
 @export
-(defun forward (net &key names)
+(defun forward (net &key names input)
+  (when input
+    (set-net-input net input))
   (if (< 1 (length names))
       (forward-layers net names)
       (forward-layer net (or (first names) ""))))

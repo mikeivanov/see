@@ -64,6 +64,12 @@
          (mat-new-with-array initial-contents depth channels))
         (t (error 'cv-error :message "Invalid combination of parameters"))))
 
+@export
+(defun mat-clone (mat)
+  (let ((clone (mat)))
+    (cv-call #'cv-mat-copy-to (peer mat) (peer clone))
+    clone))
+
 (defmethod empty-p ((mat mat))
   (cv-mat-empty (peer mat)))
 
@@ -92,6 +98,10 @@
 @export
 (defun channels (mat)
   (cv-mat-channels (peer mat)))
+
+@export
+(defun element-count (mat)
+  (cv-mat-total mat))
 
 @export
 (defun convert-to (mat depth &key (alpha 1d0) (beta 0d0))
@@ -182,7 +192,7 @@
 
 (defun mats-from-cv (cmats)
   (loop for i below (cv-mats-count cmats)
-     collect (mat-from-cv (cv-mat-copy (cv-mats-get cmats i)))))
+     collect (mat-from-cv (cv-mat-new-copy (cv-mats-get cmats i)))))
 
 ;; Ticks ---------------------------------------
 
@@ -230,6 +240,12 @@
 (defgeneric add (object addendum))
 
 @export
+(defmethod add ((mat mat) (addendum mat))
+  (check-cv-error #'null
+                  (cv-mat-add-mat (peer mat) (peer addendum)))
+  mat)
+
+@export
 (defmethod add ((mat mat) (addendum scalar))
   (with-foreign-resource (cs (scalar-to-cv addendum)
                           :free cv-scalar-free)
@@ -246,3 +262,25 @@
   (check-cv-error #'null
                   (cv-mat-mul-const (peer mat) multiplier))
   mat)
+
+@export
+(defun dot-product (mat1 mat2)
+  (cffi:with-foreign-object (out :double)
+    (cv-call #'cv-mat-dot (peer mat1) (peer mat2) out)
+    (cffi:mem-ref out :double)))
+
+;; Images ------------------------------
+
+@export
+(defun image-size (img)
+  (assert (= 2 (dims img)))
+  (size (cols img) (rows img)))
+
+@export
+(defun image-roi (img roi)
+  (assert (= 2 (dims img)))
+  (with-foreign-resource (croi (rect-to-cv roi)
+                          :free cv-rect-free)
+    (let ((res (cv-mat-new-with-roi (peer img) croi)))
+      (check-cv-error #'cffi:null-pointer-p res)
+      (mat-from-cv res))))

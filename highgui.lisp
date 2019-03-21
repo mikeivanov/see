@@ -7,15 +7,6 @@
 
 (defvar *windows* (make-hash-table :test 'equal))
 
-(cffi:defcallback %on-mouse :bool ((event :int) (x :int) (y :int)
-                                   (flags :int) (userdata :pointer))
-  (let* ((name   (cffi:foreign-string-to-lisp userdata))
-         (window (gethash name *windows*)))
-    (when window
-      (when-let (slot-value window 'on-mouse)
-        (let ((event-kw (cffi:foreign-enum-keyword 'cv-mouse-event-types event)))
-          (funcall on-mouse window event-kw x y flags))))))
-
 @export
 (defun set-mouse-callback (window fn)
   (with-slots (on-mouse) window
@@ -27,6 +18,15 @@
    (id :initarg :id)
    (on-mouse :initarg :on-mouse :initform nil)))
 
+(cffi:defcallback %on-mouse :bool ((event :int) (x :int) (y :int)
+                                   (flags :int) (userdata :pointer))
+  (let* ((name   (cffi:foreign-string-to-lisp userdata))
+         (window (gethash name *windows*)))
+    (when window
+      (when-let ((on-mouse (slot-value window 'on-mouse)))
+        (let ((event-kw (cffi:foreign-enum-keyword 'cv-mouse-event-types event)))
+          (funcall on-mouse window event-kw x y flags))))))
+
 @export
 (defun make-window (name &key on-mouse)
   (assert (null (gethash name *windows*)))
@@ -34,8 +34,7 @@
          (window (make-instance 'window :name name :id id)))
     (cv-named-window name 0)
     (cv-set-mouse-callback name (cffi:callback %on-mouse) id)
-    (when on-mouse
-      (set-mouse-callback window on-mouse))
+    (set-mouse-callback window on-mouse)
     (setf (gethash name *windows*) window)
     window))
 
@@ -43,10 +42,10 @@
   (with-slots (id name) window
     (when id
       (cffi:foreign-string-free id)
-      (setf id nil))
-    (set-mouse-callback window nil)
-    (remhash name *windows*)
-    (cv-destroy-window name)))
+      (setf id nil)
+      (set-mouse-callback window nil)
+      (cv-destroy-window name))
+    (remhash name *windows*)))
 
 @export
 (defun destroy-all-windows ()
@@ -84,7 +83,6 @@
         (progn
           (format t "ERROR: ~s~%" e)
           (trivial-backtrace:print-backtrace e))))))
-
 
 @export
 (defmacro with-open-window (((handle key) &key (name "") (delay 50) (blocking t) on-mouse)

@@ -5,6 +5,7 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
+;; TODO: shouldn't it be a weak hash?
 (defvar *windows* (make-hash-table :test 'equal))
 
 @export
@@ -32,8 +33,8 @@
   (assert (null (gethash name *windows*)))
   (let* ((id (cffi:foreign-string-alloc name))
          (window (make-instance 'window :name name :id id)))
-    (cv-named-window name 0)
-    (cv-set-mouse-callback name (cffi:callback %on-mouse) id)
+    (cv-call cv-named-window name 0)
+    (cv-call cv-set-mouse-callback name (cffi:callback %on-mouse) id)
     (set-mouse-callback window on-mouse)
     (setf (gethash name *windows*) window)
     window))
@@ -44,7 +45,7 @@
       (cffi:foreign-string-free id)
       (setf id nil)
       (set-mouse-callback window nil)
-      (cv-destroy-window name))
+      (cv-call cv-destroy-window name))
     (remhash name *windows*)))
 
 @export
@@ -52,19 +53,22 @@
   (loop for w in (hash-table-values *windows*)
         do (release w))
   (clrhash *windows*)
-  (cv-destroy-all-windows))
+  (cv-call cv-destroy-all-windows))
 
 @export
 (defun show-image (window image)
-  (cv-imshow (window-name window)
-             (peer image)))
+  (cv-call cv-imshow
+           (window-name window)
+           (peer image)))
 
 @export
 (defun wait-key (&key (delay 0))
   (handler-case
       (progn
         #+:sbcl (sb-int:set-floating-point-modes :traps '(:overflow :invalid))
-        (cv-wait-key delay))
+        (cffi:with-foreign-object (ckey :int)
+          (cv-call cv-wait-key delay ckey)
+          (cffi:mem-ref ckey :int)))
     ;; Happens inside cv::waitKey, no matter what.
     (division-by-zero ()
       (format t "division by zero caught!~%")

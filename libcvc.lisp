@@ -964,46 +964,48 @@
 	(#.(cl-swig-lispify "EVENT_FLAG_SHIFTKEY" 'enumvalue :keyword) #.16)
 	(#.(cl-swig-lispify "EVENT_FLAG_ALTKEY" 'enumvalue :keyword) #.32))
 
-(cffi:defcfun ("cv_named_window" #.(cl-swig-lispify "cv_named_window" 'function)) :void
+(cffi:defcfun ("cv_named_window" #.(cl-swig-lispify "cv_named_window" 'function)) :int
   (winname :string)
   (flags :int))
 
-(cffi:defcfun ("cv_destroy_window" #.(cl-swig-lispify "cv_destroy_window" 'function)) :void
+(cffi:defcfun ("cv_destroy_window" #.(cl-swig-lispify "cv_destroy_window" 'function)) :int
   (winname :string))
 
-(cffi:defcfun ("cv_destroy_all_windows" #.(cl-swig-lispify "cv_destroy_all_windows" 'function)) :void)
+(cffi:defcfun ("cv_destroy_all_windows" #.(cl-swig-lispify "cv_destroy_all_windows" 'function)) :int)
 
-(cffi:defcfun ("cv_imshow" #.(cl-swig-lispify "cv_imshow" 'function)) :bool
+(cffi:defcfun ("cv_imshow" #.(cl-swig-lispify "cv_imshow" 'function)) :int
   (winname :string)
   (mat :pointer))
 
-(cffi:defcfun ("cv_get_window_property" #.(cl-swig-lispify "cv_get_window_property" 'function)) :double
+(cffi:defcfun ("cv_get_window_property" #.(cl-swig-lispify "cv_get_window_property" 'function)) :int
   (winname :string)
-  (flag :int))
+  (flag :int)
+  (out_value :pointer))
 
-(cffi:defcfun ("cv_set_window_property" #.(cl-swig-lispify "cv_set_window_property" 'function)) :void
+(cffi:defcfun ("cv_set_window_property" #.(cl-swig-lispify "cv_set_window_property" 'function)) :int
   (winname :string)
   (flag :int)
   (value :double))
 
-(cffi:defcfun ("cv_set_window_title" #.(cl-swig-lispify "cv_set_window_title" 'function)) :void
+(cffi:defcfun ("cv_set_window_title" #.(cl-swig-lispify "cv_set_window_title" 'function)) :int
   (winname :string)
   (title :string))
 
 (cffi:defcfun ("cv_wait_key" #.(cl-swig-lispify "cv_wait_key" 'function)) :int
-  (delay :int))
+  (delay :int)
+  (out_key :pointer))
 
-(cffi:defcfun ("cv_move_window" #.(cl-swig-lispify "cv_move_window" 'function)) :void
+(cffi:defcfun ("cv_move_window" #.(cl-swig-lispify "cv_move_window" 'function)) :int
   (winname :string)
   (x :int)
   (y :int))
 
-(cffi:defcfun ("cv_resize_window" #.(cl-swig-lispify "cv_resize_window" 'function)) :void
+(cffi:defcfun ("cv_resize_window" #.(cl-swig-lispify "cv_resize_window" 'function)) :int
   (winname :string)
   (width :int)
   (height :int))
 
-(cffi:defcfun ("cv_set_mouse_callback" #.(cl-swig-lispify "cv_set_mouse_callback" 'function)) :bool
+(cffi:defcfun ("cv_set_mouse_callback" #.(cl-swig-lispify "cv_set_mouse_callback" 'function)) :int
   (winname :string)
   (on_mouse :pointer)
   (userdata :pointer))

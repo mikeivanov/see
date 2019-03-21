@@ -102,9 +102,19 @@
 
 (cffi:defcfun ("cv_open_cv_version" #.(cl-swig-lispify "cv_open_cv_version" 'function)) :string)
 
-(cffi:defcfun ("cv_get_error" #.(cl-swig-lispify "cv_get_error" 'function)) :string)
+(cffi:defcenum #.(cl-swig-lispify "CvError" 'enumname)
+	(#.(cl-swig-lispify "NO_ERROR" 'enumvalue :keyword) #.0)
+	(#.(cl-swig-lispify "CV_ERROR" 'enumvalue :keyword) #.-1)
+	(#.(cl-swig-lispify "STD_ERROR" 'enumvalue :keyword) #.-2)
+	(#.(cl-swig-lispify "UNKNOWN_ERROR" 'enumvalue :keyword) #.-3)
+	(#.(cl-swig-lispify "OTHER_ERROR" 'enumvalue :keyword) #.1))
 
-(cffi:defcfun ("cv_set_error" #.(cl-swig-lispify "cv_set_error" 'function)) :void
+(cffi:defcfun ("cv_get_error_message" #.(cl-swig-lispify "cv_get_error_message" 'function)) :string)
+
+(cffi:defcfun ("cv_get_error_code" #.(cl-swig-lispify "cv_get_error_code" 'function)) :int)
+
+(cffi:defcfun ("cv_set_error" #.(cl-swig-lispify "cv_set_error" 'function)) :int
+  (code :int)
   (msg :string))
 
 (cffi:defcfun ("cv_clear_error" #.(cl-swig-lispify "cv_clear_error" 'function)) :void)
@@ -528,32 +538,81 @@
 	(#.(cl-swig-lispify "IMREAD_COLOR" 'enumvalue :keyword) #.1)
 	(#.(cl-swig-lispify "IMREAD_ANYDEPTH" 'enumvalue :keyword) #.2)
 	(#.(cl-swig-lispify "IMREAD_ANYCOLOR" 'enumvalue :keyword) #.4)
-	(#.(cl-swig-lispify "IMREAD_LOAD_GDAL" 'enumvalue :keyword) #.8)
 	(#.(cl-swig-lispify "IMREAD_REDUCED_GRAYSCALE_2" 'enumvalue :keyword) #.16)
 	(#.(cl-swig-lispify "IMREAD_REDUCED_COLOR_2" 'enumvalue :keyword) #.17)
 	(#.(cl-swig-lispify "IMREAD_REDUCED_GRAYSCALE_4" 'enumvalue :keyword) #.32)
 	(#.(cl-swig-lispify "IMREAD_REDUCED_COLOR_4" 'enumvalue :keyword) #.33)
 	(#.(cl-swig-lispify "IMREAD_REDUCED_GRAYSCALE_8" 'enumvalue :keyword) #.64)
-	(#.(cl-swig-lispify "IMREAD_REDUCED_COLOR_8" 'enumvalue :keyword) #.65)
+	(#.(cl-swig-lispify "IMREAD_REDUCED_COLOR_8" 'enumvalue :keyword) #.65))
+
+(cffi:defcenum #.(cl-swig-lispify "CvImreadFlags" 'enumname)
+	(#.(cl-swig-lispify "IMREAD_LOAD_GDAL" 'enumvalue :keyword) #.8)
 	(#.(cl-swig-lispify "IMREAD_IGNORE_ORIENTATION" 'enumvalue :keyword) #.128))
 
-(cffi:defcfun ("cv_imread" #.(cl-swig-lispify "cv_imread" 'function)) :pointer
+(cffi:defcenum #.(cl-swig-lispify "CvImwriteFlags" 'enumname)
+	(#.(cl-swig-lispify "IMWRITE_JPEG_QUALITY" 'enumvalue :keyword) #.1)
+	(#.(cl-swig-lispify "IMWRITE_JPEG_PROGRESSIVE" 'enumvalue :keyword) #.2)
+	(#.(cl-swig-lispify "IMWRITE_JPEG_OPTIMIZE" 'enumvalue :keyword) #.3)
+	(#.(cl-swig-lispify "IMWRITE_JPEG_RST_INTERVAL" 'enumvalue :keyword) #.4)
+	(#.(cl-swig-lispify "IMWRITE_JPEG_LUMA_QUALITY" 'enumvalue :keyword) #.5)
+	(#.(cl-swig-lispify "IMWRITE_JPEG_CHROMA_QUALITY" 'enumvalue :keyword) #.6)
+	(#.(cl-swig-lispify "IMWRITE_PNG_COMPRESSION" 'enumvalue :keyword) #.16)
+	(#.(cl-swig-lispify "IMWRITE_PNG_STRATEGY" 'enumvalue :keyword) #.17)
+	(#.(cl-swig-lispify "IMWRITE_PNG_BILEVEL" 'enumvalue :keyword) #.18)
+	(#.(cl-swig-lispify "IMWRITE_PXM_BINARY" 'enumvalue :keyword) #.32)
+	(#.(cl-swig-lispify "IMWRITE_EXR_TYPE" 'enumvalue :keyword) #.(cl:+ (cl:ash 3 4) 0))
+	(#.(cl-swig-lispify "IMWRITE_WEBP_QUALITY" 'enumvalue :keyword) #.64)
+	(#.(cl-swig-lispify "IMWRITE_PAM_TUPLETYPE" 'enumvalue :keyword) #.128)
+	(#.(cl-swig-lispify "IMWRITE_TIFF_RESUNIT" 'enumvalue :keyword) #.256)
+	(#.(cl-swig-lispify "IMWRITE_TIFF_XDPI" 'enumvalue :keyword) #.257)
+	(#.(cl-swig-lispify "IMWRITE_TIFF_YDPI" 'enumvalue :keyword) #.258)
+	(#.(cl-swig-lispify "IMWRITE_EXR_TYPE_HALF" 'enumvalue :keyword) #.1)
+	(#.(cl-swig-lispify "IMWRITE_EXR_TYPE_FLOAT" 'enumvalue :keyword) #.2)
+	(#.(cl-swig-lispify "IMWRITE_PNG_STRATEGY_DEFAULT" 'enumvalue :keyword) #.0)
+	(#.(cl-swig-lispify "IMWRITE_PNG_STRATEGY_FILTERED" 'enumvalue :keyword) #.1)
+	(#.(cl-swig-lispify "IMWRITE_PNG_STRATEGY_HUFFMAN_ONLY" 'enumvalue :keyword) #.2)
+	(#.(cl-swig-lispify "IMWRITE_PNG_STRATEGY_RLE" 'enumvalue :keyword) #.3)
+	(#.(cl-swig-lispify "IMWRITE_PNG_STRATEGY_FIXED" 'enumvalue :keyword) #.4)
+	(#.(cl-swig-lispify "IMWRITE_PAM_FORMAT_NULL" 'enumvalue :keyword) #.0)
+	(#.(cl-swig-lispify "IMWRITE_PAM_FORMAT_BLACKANDWHITE" 'enumvalue :keyword) #.1)
+	(#.(cl-swig-lispify "IMWRITE_PAM_FORMAT_GRAYSCALE" 'enumvalue :keyword) #.2)
+	(#.(cl-swig-lispify "IMWRITE_PAM_FORMAT_GRAYSCALE_ALPHA" 'enumvalue :keyword) #.3)
+	(#.(cl-swig-lispify "IMWRITE_PAM_FORMAT_RGB" 'enumvalue :keyword) #.4)
+	(#.(cl-swig-lispify "IMWRITE_PAM_FORMAT_RGB_ALPHA" 'enumvalue :keyword) #.5))
+
+(cffi:defcfun ("cv_imread" #.(cl-swig-lispify "cv_imread" 'function)) :int
   (filename :string)
+  (flags :int)
+  (out_img :pointer))
+
+(cffi:defcfun ("cv_imread_multi" #.(cl-swig-lispify "cv_imread_multi" 'function)) :int
+  (filename :string)
+  (mats :pointer)
   (flags :int))
 
-(cffi:defcfun ("cv_imdecode" #.(cl-swig-lispify "cv_imdecode" 'function)) :pointer
-  (buf :string)
-  (flags :int))
+(cffi:defcfun ("cv_imdecode" #.(cl-swig-lispify "cv_imdecode" 'function)) :int
+  (buf :pointer)
+  (flags :int)
+  (out_img :pointer))
 
-(cffi:defcfun ("cv_imwrite" #.(cl-swig-lispify "cv_imwrite" 'function)) :bool
+(cffi:defcfun ("cv_imwrite" #.(cl-swig-lispify "cv_imwrite" 'function)) :int
   (filename :string)
   (img :pointer)
   (params :pointer))
 
-(cffi:defcfun ("cv_imencode" #.(cl-swig-lispify "cv_imencode" 'function)) :pointer
+(cffi:defcfun ("cv_imencode" #.(cl-swig-lispify "cv_imencode" 'function)) :int
   (file_ext :string)
   (img :pointer)
-  (params :pointer))
+  (params :pointer)
+  (out_buffer :pointer))
+
+(cffi:defcfun ("cv_have_image_reader" #.(cl-swig-lispify "cv_have_image_reader" 'function)) :int
+  (filename :string)
+  (out_result :pointer))
+
+(cffi:defcfun ("cv_have_image_writer" #.(cl-swig-lispify "cv_have_image_writer" 'function)) :int
+  (filename :string)
+  (out_result :pointer))
 
 (cffi:defcenum #.(cl-swig-lispify "CvLineTypes" 'enumname)
 	(#.(cl-swig-lispify "FILLED" 'enumvalue :keyword) #.-1)

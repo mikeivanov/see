@@ -12,6 +12,8 @@
 %typemap(cout) int64_t ":long";
 %typemap(cin) int32_t ":int";
 %typemap(cout) int32_t ":int";
+%typemap(cin) error_t ":int";
+%typemap(cout) error_t ":int";
 
 %feature("intern_function", "cl-swig-lispify");
 

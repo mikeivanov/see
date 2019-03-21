@@ -86,18 +86,25 @@
 
 @export
 (define-condition cv-error ()
-  ((message :initarg :message :reader message))
-  (:report (lambda (condition stream) (format stream (message condition)))))
+  ((code :initarg :code :reader error-code)
+   (message :initarg :message :reader error-message))
+  (:report (lambda (condition stream)
+             (format stream "ERROR(~a): ~a"
+                     (error-code condition)
+                     (error-message condition)
+                     ))))
 
 (defun check-cv-error (predicate value)
   (if (funcall predicate value)
-      (let ((error (cv-get-error)))
+      (let ((error (cv-get-error-message))
+            (code (cv-get-error-code)))
         (cv-clear-error)
-        (error 'cv-error :message error))
+        (error 'cv-error :code code :message error))
       value))
 
 (defmacro cv-call (fn &rest args)
-  `(check-cv-error #'null (funcall ,fn ,@args)))
+  `(check-cv-error (lambda (x) (not (= 0 x)))
+                   (funcall (symbol-function (quote ,fn)) ,@args)))
 
 (defmacro with-foreign-resource ((name init &key (free 'cffi:foreign-free)) &body body)
   `(let ((,name ,init))

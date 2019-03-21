@@ -67,7 +67,7 @@
 @export
 (defun mat-clone (mat)
   (let ((clone (mat)))
-    (cv-call #'cv-mat-copy-to (peer mat) (peer clone))
+    (check-cv-error #'null (cv-mat-copy-to (peer mat) (peer clone)))
     clone))
 
 (defmethod empty-p ((mat mat))
@@ -266,7 +266,7 @@
 @export
 (defun dot-product (mat1 mat2)
   (cffi:with-foreign-object (out :double)
-    (cv-call #'cv-mat-dot (peer mat1) (peer mat2) out)
+    (check-cv-error #'null (cv-mat-dot (peer mat1) (peer mat2) out))
     (cffi:mem-ref out :double)))
 
 ;; Images ------------------------------

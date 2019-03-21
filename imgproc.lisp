@@ -10,8 +10,7 @@
 @export
 (defun median-blur (img amount &key target)
   (let ((out (or target (mat-new-empty))))
-    (check-cv-error #'null
-                    (cv-median-blur (peer img) (peer out) amount))
+    (cv-call cv-median-blur (peer img) (peer out) amount)
     out))
 
 ;; Transforms ---------------------------
@@ -19,11 +18,11 @@
 @export
 (defun convert-colorspace (img code &key target (channels 0))
   (let ((dst (or target (mat))))
-    (check-cv-error #'null
-                    (cv-cvt-color (peer img)
-                                  (peer dst)
-                                  (cffi:foreign-enum-value 'cv-color-conversion-codes code)
-                                  channels))
+    (cv-call cv-cvt-color
+             (peer img)
+             (peer dst)
+             (cffi:foreign-enum-value 'cv-color-conversion-codes code)
+             channels)
     dst))
 
 @export
@@ -39,13 +38,13 @@
                                            warp))))
     (with-foreign-resource (csize (size-to-cv size)
                             :free cv-size-free)
-      (check-cv-error #'null
-                      (cv-resize (peer img)
-                                 (peer dst)
-                                 csize
-                                 (as-double-float fx)
-                                 (as-double-float fy)
-                                 flags)))
+      (cv-call cv-resize
+               (peer img)
+               (peer dst)
+               csize
+               (as-double-float fx)
+               (as-double-float fy)
+               flags))
     dst))
 
 ;; Drawing ------------------------
@@ -59,7 +58,8 @@
   (with-foreign-resource (ca (point-to-cv a))
     (with-foreign-resource (cb (point-to-cv b))
       (with-foreign-resource (cc (scalar-to-cv color))
-        (cv-line (peer img)
+        (cv-call cv-line
+                 (peer img)
                  ca cb
                  cc
                  thickness
@@ -79,15 +79,16 @@
                           :free cv-point-free)
     (with-foreign-resource (ccolor (scalar-to-cv color)
                             :free cv-scalar-free)
-      (cv-put-text (peer mat)
-                   text
-                   corigin
-                   (cffi:foreign-enum-value 'cv-hershey-fonts font-face)
-                   (as-double-float font-scale)
-                   ccolor
-                   thickness
-                   (cffi:foreign-enum-value 'cv-line-types line-type)
-                   bottom-left-origin)
+      (cv-call cv-put-text
+               (peer mat)
+               text
+               corigin
+               (cffi:foreign-enum-value 'cv-hershey-fonts font-face)
+               (as-double-float font-scale)
+               ccolor
+               thickness
+               (cffi:foreign-enum-value 'cv-line-types line-type)
+               bottom-left-origin)
       mat)))
 
 @export
@@ -98,9 +99,10 @@
                                   (shift 0))
   (with-foreign-resource (cr (rect-to-cv rect))
     (with-foreign-resource (cc (scalar-to-cv color))
-      (cv-rectangle (peer img)
-                    cr
-                    cc
-                    thickness
-                    line-type
-                    shift))))
+      (cv-call cv-rectangle
+               (peer img)
+               cr
+               cc
+               thickness
+               line-type
+               shift))))

@@ -850,20 +850,20 @@
 	(#.(cl-swig-lispify "WARP_FILL_OUTLIERS" 'enumvalue :keyword) #.8)
 	(#.(cl-swig-lispify "WARP_INVERSE_MAP" 'enumvalue :keyword) #.16))
 
-(cffi:defcfun ("cv_cvt_color" #.(cl-swig-lispify "cv_cvt_color" 'function)) :bool
+(cffi:defcfun ("cv_cvt_color" #.(cl-swig-lispify "cv_cvt_color" 'function)) :int
   (src :pointer)
   (dst :pointer)
   (code :int)
-  (dst_cn :int))
+  (dstCn :int))
 
-(cffi:defcfun ("cv_blur" #.(cl-swig-lispify "cv_blur" 'function)) :bool
+(cffi:defcfun ("cv_blur" #.(cl-swig-lispify "cv_blur" 'function)) :int
   (src :pointer)
   (dst :pointer)
   (ksize :pointer)
   (anchor :pointer)
-  (border_type :int))
+  (borderType :int))
 
-(cffi:defcfun ("cv_resize" #.(cl-swig-lispify "cv_resize" 'function)) :bool
+(cffi:defcfun ("cv_resize" #.(cl-swig-lispify "cv_resize" 'function)) :int
   (src :pointer)
   (dst :pointer)
   (dsize :pointer)
@@ -871,7 +871,7 @@
   (fy :double)
   (interpolation :int))
 
-(cffi:defcfun ("cv_line" #.(cl-swig-lispify "cv_line" 'function)) :void
+(cffi:defcfun ("cv_line" #.(cl-swig-lispify "cv_line" 'function)) :int
   (img :pointer)
   (pt1 :pointer)
   (pt2 :pointer)
@@ -880,7 +880,7 @@
   (line_type :int)
   (shift :int))
 
-(cffi:defcfun ("cv_arrowed_line" #.(cl-swig-lispify "cv_arrowed_line" 'function)) :void
+(cffi:defcfun ("cv_arrowed_line" #.(cl-swig-lispify "cv_arrowed_line" 'function)) :int
   (img :pointer)
   (pt1 :pointer)
   (pt2 :pointer)
@@ -890,28 +890,28 @@
   (shift :int)
   (tipLength :double))
 
-(cffi:defcfun ("cv_circle" #.(cl-swig-lispify "cv_circle" 'function)) :void
+(cffi:defcfun ("cv_circle" #.(cl-swig-lispify "cv_circle" 'function)) :int
   (img :pointer)
   (center :pointer)
   (radius :int)
   (color :pointer)
   (thickness :int)
-  (line_type :int)
+  (lineType :int)
   (shift :int))
 
-(cffi:defcfun ("cv_ellipse" #.(cl-swig-lispify "cv_ellipse" 'function)) :void
+(cffi:defcfun ("cv_ellipse" #.(cl-swig-lispify "cv_ellipse" 'function)) :int
   (img :pointer)
   (center :pointer)
   (axes :pointer)
   (angle :double)
-  (start_angle :double)
-  (end_angle :double)
+  (startAngle :double)
+  (endAngle :double)
   (color :pointer)
   (thickness :int)
-  (line_type :int)
+  (lineType :int)
   (shift :int))
 
-(cffi:defcfun ("cv_rectangle" #.(cl-swig-lispify "cv_rectangle" 'function)) :void
+(cffi:defcfun ("cv_rectangle" #.(cl-swig-lispify "cv_rectangle" 'function)) :int
   (img :pointer)
   (rect :pointer)
   (color :pointer)
@@ -919,25 +919,26 @@
   (lineType :int)
   (shift :int))
 
-(cffi:defcfun ("cv_get_text_size" #.(cl-swig-lispify "cv_get_text_size" 'function)) :pointer
+(cffi:defcfun ("cv_get_text_size" #.(cl-swig-lispify "cv_get_text_size" 'function)) :int
   (text :string)
-  (font_face :int)
-  (font_scale :double)
+  (fontFace :int)
+  (fontScale :double)
   (thickness :int)
-  (base_line :pointer))
+  (out_baseline :pointer)
+  (out_size :pointer))
 
-(cffi:defcfun ("cv_put_text" #.(cl-swig-lispify "cv_put_text" 'function)) :bool
+(cffi:defcfun ("cv_put_text" #.(cl-swig-lispify "cv_put_text" 'function)) :int
   (img :pointer)
   (text :string)
   (org :pointer)
-  (font_face :int)
-  (font_scale :double)
+  (fontFace :int)
+  (fontScale :double)
   (color :pointer)
   (thickness :int)
-  (line_type :int)
-  (bottom_left_origin :bool))
+  (lineType :int)
+  (bottomLeftOrigin :bool))
 
-(cffi:defcfun ("cv_median_blur" #.(cl-swig-lispify "cv_median_blur" 'function)) :bool
+(cffi:defcfun ("cv_median_blur" #.(cl-swig-lispify "cv_median_blur" 'function)) :int
   (input :pointer)
   (output :pointer)
   (ksize :int))

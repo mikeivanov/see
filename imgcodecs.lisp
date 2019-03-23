@@ -17,8 +17,7 @@
 
 (defun read-image-multi (path flags destination)
   (check-type destination list)
-  (with-foreign-resource (cmats (mats-to-cv destination)
-                          :free cv-mats-free)
+  (with-foreign-resource (cmats (mats-to-cv destination) :free cv-mats-free)
     (cv-call cv-imread-multi path cmats flags)
     (let ((mats (mats-from-cv cmats)))
       (nconc destination (nthcdr (length destination) mats)))))
@@ -46,6 +45,5 @@
 
 @export
 (defun write-image (path image &rest flags)
-  (with-foreign-resource (cflags (imwrite-flags-to-cv flags)
-                          :free cv-ints-free)
+  (with-foreign-resource (cflags (imwrite-flags-to-cv flags) :free cv-ints-free)
     (cv-call cv-imwrite path image cflags)))

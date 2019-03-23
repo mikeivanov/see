@@ -44,8 +44,7 @@
 (defmethod initialize-instance :after ((proxy proxy) &key peer release)
   (let ((ref (ref peer release)))
     (setf (slot-value proxy 'ref) ref)
-    (trivial-garbage:finalize proxy
-                              (lambda () (release ref))))
+    (trivial-garbage:finalize proxy (lambda () (release ref))))
   proxy)
 
 (defun free-foreign-array-contents (arr count)
@@ -105,6 +104,15 @@
 (defmacro cv-call (fn &rest args)
   `(check-cv-error (lambda (x) (not (= 0 x)))
                    (funcall (symbol-function (quote ,fn)) ,@args)))
+
+(defmacro cv-call-out (fn &rest args)
+  (let* ((type (car (last args)))
+         (args (butlast args)))
+    (check-type type keyword)
+    (let ((out (gensym)))
+      `(cffi:with-foreign-object (,out ,type)
+         (cv-call ,fn ,@args ,out)
+         (cffi:mem-ref ,out ,type)))))
 
 (defmacro with-foreign-resource ((name init &key (free 'cffi:foreign-free)) &body body)
   `(let ((,name ,init))

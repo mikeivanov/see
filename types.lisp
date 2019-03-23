@@ -5,57 +5,58 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
+;; TODO: DRY
+
 ;; Floats ----------------------------
 
 (defun floats-to-cv (floats)
-  (let ((cf (cv-floats-new)))
+  ;; TODO: use arrays
+  (let ((cfloats (cv-call-out cv-floats-new :pointer)))
     (loop for f in floats
-          do (cv-floats-add cf (as-single-float f)))
-    cf))
+          do (cv-floats-add cfloats (as-single-float f)))
+    cfloats))
 
 ;; Doubles ----------------------------
 
 (defun doubles-from-cv (cdoubles)
-  (loop for i from 0 below (cv-doubles-count cdoubles)
-        collect (cv-doubles-get cdoubles i)))
+  ;; TODO: use arrays
+  (loop with count = (cv-call-out cv-doubles-count cdoubles :int)
+        for i from 0 below count
+        collect (cv-call-out cv-doubles-get cdoubles i :double)))
 
 ;; Ints --------------------------------
 
 (defun ints-to-cv (values)
-  (let ((cv (cv-ints-new)))
+  (let ((cints (cv-call-out cv-ints-new :pointer)))
     (etypecase values
-      (array (loop for v across values do (cv-ints-add cv v)))
-      (list  (loop for v in     values do (cv-ints-add cv v))))
-    cv))
+      (array (loop for v across values do (cv-call cv-ints-add cints v)))
+      (list  (loop for v in     values do (cv-call cv-ints-add cints v))))
+    cints))
 
 (defun ints-from-cv (cints)
-  (loop for i from 0 below (cv-ints-count cints)
-        collect (cv-ints-get cints i)))
+  (loop with count = (cv-call-out cv-ints-count cints :int)
+        for i from 0 below count
+        collect (cv-call-out cv-ints-get cints i :int)))
 
 (defun int-array-from-cv (cints)
-  (let* ((count (cv-ints-count cints))
-         (arr (make-array count :element-type 'integer)))
-    (dotimes (i count)
-      (setf (elt arr i) (cv-ints-get cints i)))
-    arr))
-
-(defun int-array-to-cv (values)
-  (let ((cv (cv-ints-new)))
-    (loop for v across values
-          do (cv-ints-add cv v))
-    cv))
+  (loop with count = (cv-call-out cv-ints-count cints :int)
+        with array = (make-array count :element-type 'integer)
+        for i from 0 below count
+        do (setf (elt array i) (cv-call-out cv-ints-get cints i :int))
+        finally (return array)))
 
 ;; Strings ---------------------------------
 
 (defun strings-to-cv (strings)
-  (let ((cs (cv-strings-new)))
+  (let ((cstrings (cv-call-out cv-strings-new :pointer)))
     (loop for string in strings
-          do (cv-strings-add cs string))
-    cs))
+          do (cv-call cv-strings-add cstrings string))
+    cstrings))
 
 (defun strings-from-cv (cstrings)
-  (loop for i from 0 below (cv-strings-count cstrings)
-        collect (cv-strings-get cstrings i)))
+  (loop with count = (cv-call-out cv-strings-count cstrings :int)
+        for i from 0 below count
+        collect (cv-call-out cv-strings-get cstrings i :string)))
 
 ;; Scalar ---------------------------
 
@@ -81,14 +82,14 @@
 
 (defun scalar-to-cv (scalar)
   (with-slots (v0 v1 v2 v3) scalar
-    (cv-scalar-new v0 v1 v2 v3)))
+    (cv-call-out cv-scalar-new v0 v1 v2 v3 :pointer)))
 
 (defun scalar-from-cv (cscalar)
-  (let ((ptr (cv-scalar-values cscalar)))
-    (scalar (cffi:mem-aref ptr :double 0)
-            (cffi:mem-aref ptr :double 1)
-            (cffi:mem-aref ptr :double 2)
-            (cffi:mem-aref ptr :double 3))))
+  (let ((data (cv-call-out cv-scalar-data cscalar :pointer)))
+    (scalar (cffi:mem-aref data :double 0)
+            (cffi:mem-aref data :double 1)
+            (cffi:mem-aref data :double 2)
+            (cffi:mem-aref data :double 3))))
 
 (defun as-scalar (x)
   (etypecase x
@@ -118,11 +119,11 @@
 
 (defun size-to-cv (size)
   (with-slots (width height) size
-    (cv-size-new width height)))
+    (cv-call-out cv-size-new width height :pointer)))
 
 (defun size-from-cv (csize)
-  (size (cv-size-width csize)
-        (cv-size-height csize)))
+  (size (cv-call-out cv-size-width  csize :float)
+        (cv-call-out cv-size-height csize :float)))
 
 ;; Point -----------------------------------
 
@@ -146,17 +147,18 @@
 
 (defun point-to-cv (point)
   (with-slots (x y) point
-    (cv-point-new x y)))
+    (cv-call-out cv-point-new x y :pointer)))
 
 (defun point-from-cv (cpoint)
-  (point (cv-point-x cpoint)
-         (cv-point-y cpoint)))
+  (point (cv-call-out cv-point-x cpoint :float)
+         (cv-call-out cv-point-y cpoint :float)))
 
 ;; Points (vector) -----------------------
 
 (defun points-from-cv (cpoints)
-  (loop for i from 0 below (cv-points-count cpoints)
-        collect (point-from-cv (cv-points-get cpoints i))))
+  (loop with count = (cv-call-out cv-points-count cpoints :int)
+        for i from 0 below count
+        collect (point-from-cv (cv-call-out cv-points-get cpoints i :pointer))))
 
 ;; Rect -----------------------------------
 
@@ -183,13 +185,13 @@
 
 (defun rect-to-cv (rect)
   (with-slots (x y width height) rect
-    (cv-rect-new x y width height)))
+    (cv-call-out cv-rect-new x y width height :pointer)))
 
 (defun rect-from-cv (crect)
-  (rect (cv-rect-x crect)
-        (cv-rect-y crect)
-        (cv-rect-width crect)
-        (cv-rect-height crect)))
+  (rect (cv-call-out cv-rect-x crect :float)
+        (cv-call-out cv-rect-y crect :float)
+        (cv-call-out cv-rect-width crect :float)
+        (cv-call-out cv-rect-height crect :float)))
 
 ;; RotatedRect -------------------------
 
@@ -212,11 +214,13 @@
 
 (defun rotated-rect-to-cv (rr)
   (with-slots (x y width height angle) rr
-    (cv-rotated-rect-new (as-single-float x)
-                         (as-single-float y)
-                         (as-single-float width)
-                         (as-single-float height)
-                         (as-single-float angle))))
+    (cv-call-out cv-rotated-rect-new
+                 (as-single-float x)
+                 (as-single-float y)
+                 (as-single-float width)
+                 (as-single-float height)
+                 (as-single-float angle)
+                 :pointer)))
 
 (defmethod print-object ((r rotated-rect) out)
   (print-unreadable-object (r out :type t)
@@ -227,16 +231,15 @@
 (defun rotated-rect-points (rect)
   (with-foreign-resource (cr (rotated-rect-to-cv rect)
                           :free cv-rotated-rect-free)
-    (with-foreign-resource (cpoints (cv-rotated-rect-points cr)
+    (with-foreign-resource (cpoints (cv-call-out cv-rotated-rect-points cr :pointer)
                             :free cv-points-free)
-      (check-cv-error #'cffi:null-pointer-p cpoints)
       (points-from-cv cpoints))))
-
 
 ;; RotatedRects (vector) -------------------------------------
 
 (defun rotated-rects-to-cv (rects)
-  (let ((cr (cv-rotated-rects-new)))
-    (loop for r in rects
-          do (cv-rotated-rects-add cr (rotated-rect-to-cv r)))
-    cr))
+  (let ((crects (cv-call-out cv-rotated-rects-new :pointer)))
+    (loop for rect in rects
+          do (with-foreign-resource (crect (rotated-rect-to-cv rect) :free cv-rotated-rect-free)
+               (cv-call cv-rotated-rects-add crects crect)))
+    crects))

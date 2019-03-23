@@ -16,39 +16,38 @@
 (defun mat-from-cv (peer)
   (make-instance 'mat
                  :peer peer
-                 :release #'cv-mat-free))
+                 :release (lambda (self)
+                            (cv-call cv-mat-free self))))
 
 (defun make-type (depth channels)
   (let ((cdepth (cffi:foreign-enum-value 'cv-depths depth)))
-    (cv-make-type cdepth channels)))
+    (cv-call-out cv-make-type cdepth channels :int)))
 
 (defun mat-new-empty ()
-  (mat-from-cv (cv-mat-new)))
+  (mat-from-cv (cv-call-out cv-mat-new :pointer)))
+
+(defun mat-new-copy (mat)
+  (mat-from-cv (cv-call-out cv-mat-new-copy (peer mat) :pointer)))
 
 (defun mat-new-with-scalar (shape scalar depth channels)
-  (with-foreign-resource (cshape (ints-to-cv shape))
-    (with-foreign-resource (cscalar (scalar-to-cv scalar))
+  (with-foreign-resource (cshape (ints-to-cv shape) :free cv-ints-free)
+    (with-foreign-resource (cscalar (scalar-to-cv scalar) :free cv-scalar-free)
       (let ((ctype (make-type depth channels)))
-        (mat-from-cv (cv-mat-new-with-scalar cshape ctype cscalar))))))
+        (mat-from-cv (cv-call-out cv-mat-new-with-scalar cshape ctype cscalar :pointer))))))
 
-(defun mat-new-with-ptr (ptr shape depth channels copy-data-p)
+(defun mat-new-with-ptr (ptr shape depth channels)
   (let ((ctype (make-type depth channels)))
-    (with-foreign-resource (cshape (ints-to-cv shape)
-                            :free cv-ints-free)
-      (if copy-data-p
-          (with-foreign-resource (cmat (cv-mat-new-with-data cshape ctype ptr)
-                                  :free cv-mat-free)
-            (let ((result (mat)))
-              (check-cv-error #'null (cv-mat-copy-to cmat (peer result)))
-              result))
-          (mat-from-cv (cv-mat-new-with-data cshape ctype ptr))))))
+    (with-foreign-resource (cshape (ints-to-cv shape) :free cv-ints-free)
+      (mat-from-cv (cv-call-out cv-mat-new-with-data cshape ctype ptr :pointer)))))
 
 (defun mat-new-with-array (array depth channels)
   (let* ((shape (array-shape array))
          (ctype (depth-cffi-type depth)))
     (with-foreign-array (cdata ctype
                          :initial-contents (flatten-array array))
-      (mat-new-with-ptr cdata shape depth channels t))))
+      (with-resource (mat (mat-new-with-ptr cdata shape depth channels))
+        ;; Need a deep clone b/c the `cdata` array scope
+        (mat-clone mat)))))
 
 @export
 (defun mat (&key
@@ -67,51 +66,53 @@
 @export
 (defun mat-clone (mat)
   (let ((clone (mat)))
-    (check-cv-error #'null (cv-mat-copy-to (peer mat) (peer clone)))
+    (cv-call cv-mat-copy-to (peer mat) (peer clone))
     clone))
 
 (defmethod empty-p ((mat mat))
-  (cv-mat-empty (peer mat)))
+  (cv-call-out cv-mat-empty (peer mat) :bool))
 
 @export
 (defun dims (mat)
-  (cv-mat-dims (peer mat)))
+  (cv-call-out cv-mat-dims (peer mat) :int))
 
 @export
 (defun rows (mat)
-  (cv-mat-rows (peer mat)))
+  (cv-call-out cv-mat-rows (peer mat) :int))
 
 @export
 (defun cols (mat)
-  (cv-mat-cols (peer mat)))
+  (cv-call-out cv-mat-cols (peer mat) :int))
 
 @export
 (defun shape (mat)
-  (with-foreign-resource (shape (cv-mat-size (peer mat)))
-    (check-cv-error #'cffi:null-pointer-p shape)
-    (ints-from-cv shape)))
+  (with-foreign-resource (cshape (ints-to-cv nil) :free cv-ints-free)
+    (cv-call cv-mat-size (peer mat) cshape)
+    (ints-from-cv cshape)))
 
 @export
 (defun depth (mat)
-  (cffi:foreign-enum-keyword 'cv-depths (cv-mat-depth (peer mat))))
+  (let ((val (cv-call-out cv-mat-depth (peer mat) :int)))
+    (cffi:foreign-enum-keyword 'cv-depths val)))
 
 @export
 (defun channels (mat)
-  (cv-mat-channels (peer mat)))
+  (cv-call-out cv-mat-channels (peer mat) :int))
 
 @export
 (defun element-count (mat)
-  (cv-mat-total mat))
+  (cv-call-out cv-mat-total (peer mat) :int))
 
 @export
 (defun convert-to (mat depth &key (alpha 1d0) (beta 0d0))
   (let ((dst   (mat))
         (ctype (make-type depth (channels mat))))
-    (cv-mat-convert-to (peer mat)
-                       (peer dst)
-                       ctype
-                       (as-double-float alpha)
-                       (as-double-float beta))
+    (cv-call cv-mat-convert-to
+             (peer mat)
+             (peer dst)
+             ctype
+             (as-double-float alpha)
+             (as-double-float beta))
     dst))
 
 (defun mat-ptr (mat index)
@@ -121,7 +122,7 @@
     (loop for i from 0
           for x in index
           do (setf (cffi:mem-aref idxarr :int i) x))
-    (cv-mat-get-ptr (peer mat) idxarr)))
+    (cv-call-out cv-mat-get-ptr (peer mat) idxarr :pointer)))
 
 (defun depth-cffi-type (depth)
   (ecase depth
@@ -151,8 +152,9 @@
 (defun mat-get-scalar (mat index)
   (let ((ptr  (mat-ptr mat index))
         (type (depth-cffi-type (depth mat))))
-    (loop for i from 0 below (channels mat)
-          collect (cffi:mem-aref ptr type i))))
+    (apply #'scalar
+           (loop for i from 0 below (channels mat)
+                 collect (cffi:mem-aref ptr type i)))))
 
 (defmethod at ((mat mat) (index number) &key channel)
   (at mat (list index) :channel channel))
@@ -185,73 +187,77 @@
 ;; Mats (vector) ------------------------------
 
 (defun mats-to-cv (mats)
-  (let ((cm (cv-mats-new)))
+  (let ((cmats (cv-call-out cv-mats-new :pointer)))
     (loop for m in mats
-          do (cv-mats-add cm (peer m)))
-    cm))
+          do (cv-call cv-mats-add cmats (peer m)))
+    cmats))
 
 (defun mats-from-cv (cmats)
-  (loop for i below (cv-mats-count cmats)
-     collect (mat-from-cv (cv-mat-new-copy (cv-mats-get cmats i)))))
+  (let ((count (cv-call-out cv-mats-count cmats :int)))
+    (loop for i below count
+          collect (let ((cref (cv-call-out cv-mats-get cmats i :pointer)))
+                    ;; mats.get returns a ref, not a new instance
+                    ;; therefore a c-level copy has to be created
+                    (mat-from-cv (cv-call-out cv-mat-new-copy cref :pointer))))))
 
 ;; Ticks ---------------------------------------
 
 @export
 (defun tick-count ()
-  (cv-get-tick-count))
+  (cv-call-out cv-get-tick-count :long))
 
 @export
 (defun tick-frequency ()
-  (cv-get-tick-frequency))
+  (cv-call-out cv-get-tick-frequency :long))
 
 ;; Arrays ----------------------------------
 
 @export
 (defun extract-channel (mat channel &key target)
   (let ((dst (or target (mat))))
-    (check-cv-error #'null
-                    (cv-extract-channel (peer mat)
-                                        (peer dst)
-                                        channel))
+    (cv-call cv-extract-channel
+             (peer mat)
+             (peer dst)
+             channel)
     dst))
 
 @export
-(defun slice (mat idx &key (copy-data-p t))
+(defun slice (mat idx &key (copy-data-p t)) ;; TODO: does it have to be `t`?
   (let* ((shape (shape mat))
          (n (length shape))
          (m (length idx)))
     (assert (< m n))
     (let* ((index (append idx (make-list (- n m) :initial-element 0)))
            (ptr   (mat-ptr mat index))
-           (size  (subseq shape m n)))
-      (mat-new-with-ptr ptr size (depth mat) (channels mat) copy-data-p))))
+           (size  (subseq shape m n))
+           (mat   (mat-new-with-ptr ptr size (depth mat) (channels mat))))
+      (if copy-data-p
+          (mat-clone mat)
+          mat))))
 
 @export
-(defun merge-channels (&rest mats)
-  (let ((n (length mats)))
-    (assert (< 1 n))
-    (with-foreign-resource (cmats (mats-to-cv mats))
-      (mat-from-cv (check-cv-error #'cffi:null-pointer-p
-                                   (cv-merge cmats))))))
+(defun merge-channels (mats &key destination)
+  (assert (< 1 (length mats)))
+  (let ((mat (or destination (mat))))
+    (with-foreign-resource (cmats (mats-to-cv mats) :free cv-mats-free)
+      (cv-call cv-merge cmats (peer mat))
+      mat)))
 
 ;; Math ops ----------------------------------
 
 @export
-(defgeneric add (object addendum))
+(defgeneric add (object addendum)) ;; TODO: add (:in-place-p t)?
 
 @export
 (defmethod add ((mat mat) (addendum mat))
-  (check-cv-error #'null
-                  (cv-mat-add-mat (peer mat) (peer addendum)))
+  (cv-call cv-mat-add-mat (peer mat) (peer addendum))
   mat)
 
 @export
 (defmethod add ((mat mat) (addendum scalar))
-  (with-foreign-resource (cs (scalar-to-cv addendum)
-                          :free cv-scalar-free)
-    (check-cv-error #'null
-                    (cv-mat-add-scalar (peer mat) cs)))
-  mat)
+  (with-foreign-resource (cs (scalar-to-cv addendum) :free cv-scalar-free)
+    (cv-call cv-mat-add-scalar (peer mat) cs)
+    mat))
 
 @export
 (defmethod add ((mat mat) (addendum number))
@@ -259,15 +265,12 @@
 
 @export
 (defmethod mul ((mat mat) (multiplier number))
-  (check-cv-error #'null
-                  (cv-mat-mul-const (peer mat) multiplier))
+  (cv-call cv-mat-mul-const (peer mat) multiplier)
   mat)
 
 @export
 (defun dot-product (mat1 mat2)
-  (cffi:with-foreign-object (out :double)
-    (check-cv-error #'null (cv-mat-dot (peer mat1) (peer mat2) out))
-    (cffi:mem-ref out :double)))
+  (cv-call-out cv-mat-dot (peer mat1) (peer mat2) :double))
 
 ;; Images ------------------------------
 
@@ -279,8 +282,5 @@
 @export
 (defun image-roi (img roi)
   (assert (= 2 (dims img)))
-  (with-foreign-resource (croi (rect-to-cv roi)
-                          :free cv-rect-free)
-    (let ((res (cv-mat-new-with-roi (peer img) croi)))
-      (check-cv-error #'cffi:null-pointer-p res)
-      (mat-from-cv res))))
+  (with-foreign-resource (croi (rect-to-cv roi) :free cv-rect-free)
+    (mat-from-cv (cv-call-out cv-mat-new-with-roi (peer img) croi :pointer))))

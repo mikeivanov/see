@@ -11,31 +11,33 @@
 (defun net-from-cv (cnet)
   (make-instance 'net
                  :peer cnet
-                 :release #'cv-dnn-net-free))
+                 :release (lambda (self) (cv-call cv-dnn-net-free self))))
 
 (defmethod empty-p ((net net))
-  (cv-dnn-net-empty (peer net)))
+  (cv-call cv-dnn-net-empty (peer net)))
 
-(defun configure-net (net preferable-backend preferable-target)
+(defun configure-net (net &key preferable-backend preferable-target)
   (when preferable-backend
-    (check-cv-error #'null
-                    (cv-dnn-net-set-preferable-backend
-                       net
-                       (cffi:foreign-enum-value 'cv-backend
-                                                preferable-backend))))
+    (cv-call cv-dnn-net-set-preferable-backend
+             (peer net)
+             (cffi:foreign-enum-value 'cv-backend preferable-backend)))
   (when preferable-target
-    (check-cv-error #'null
-                    (cv-dnn-net-set-preferable-target
-                       net
-                       (cffi:foreign-enum-value 'cv-target
-                                                preferable-target)))))
+    (cv-call cv-dnn-net-set-preferable-target
+             (peer net)
+             (cffi:foreign-enum-value 'cv-target preferable-target)))
+  net)
 
 @export
 (defun read-net (path &key (config "") (framework "") preferable-backend preferable-target)
-  (let ((net (see::cv-dnn-read-net (namestring path) (namestring config) framework)))
-    (check-cv-error #'cffi:null-pointer-p net)
-    (configure-net net preferable-backend preferable-target)
-    (net-from-cv net)))
+  (let* ((cnet (cv-call-out cv-dnn-read-net
+                            (namestring path)
+                            (namestring config)
+                            framework
+                            :pointer))
+         (net (net-from-cv cnet)))
+    (configure-net net
+                   :preferable-backend preferable-backend
+                   :preferable-target preferable-target)))
 
 @export
 (defun blob-from-images (images &key
@@ -49,18 +51,18 @@
     (with-foreign-resource (cmean (scalar-to-cv mean)
                             :free cv-scalar-free)
       (with-foreign-resource (csize (size-to-cv size)
-                            :free cv-size-free)
+                              :free cv-size-free)
         (let ((blob (mat))
               (cdepth (cffi:foreign-enum-value 'cv-depths depth)))
-          (check-cv-error #'null
-                          (cv-dnn-blob-from-images cimages
-                                                   (peer blob)
-                                                   (float scale)
-                                                   csize
-                                                   cmean
-                                                   swap-rb
-                                                   crop
-                                                   cdepth))
+          (cv-call cv-dnn-blob-from-images
+                   cimages
+                   (peer blob)
+                   (float scale)
+                   csize
+                   cmean
+                   swap-rb
+                   crop
+                   cdepth)
           blob)))))
 
 @export
@@ -71,35 +73,36 @@
   (assert (eq :depth-32-f (depth blob)))
   (with-foreign-resource (cmean (scalar-to-cv mean)
                           :free cv-scalar-free)
-    (check-cv-error #'null
-                    (cv-dnn-net-set-input (peer net)
-                                          (peer blob)
-                                          name
-                                          scale
-                                          cmean)))
-  net)
+    (cv-call cv-dnn-net-set-input
+             (peer net)
+             (peer blob)
+             name
+             scale
+             cmean)
+    net))
 
-(defun forward-layer (net name)
-  (let ((blob (cv-dnn-net-forward (peer net) name)))
-    (check-cv-error #'cffi:null-pointer-p blob)
-    (mat-from-cv blob)))
+(defun forward-layer (net name blob)
+  (let ((blob (or blob (mat))))
+    (check-type blob mat)
+    (cv-call cv-dnn-net-forward (peer net) name (peer blob))
+    blob))
 
-(defun forward-layers (net names)
-  (with-foreign-resource (cnames (strings-to-cv names)
-                                 :free cv-strings-free)
-    (let ((cblobs (cv-dnn-net-forward-layers (peer net) cnames)))
-      (check-cv-error #'cffi:null-pointer-p cblobs)
-      (with-foreign-resource (cblobs cblobs
-                                     :free cv-mats-free)
-        (mats-from-cv cblobs)))))
+(defun forward-layers (net names blobs)
+  (check-type blobs list)
+  (with-foreign-resource (cblobs (mats-to-cv blobs)
+                          :free cv-mats-free)
+    (with-foreign-resource (cnames (strings-to-cv names)
+                            :free cv-strings-free)
+      (cv-call cv-dnn-net-forward-layers (peer net) cnames cblobs)
+        (mats-from-cv cblobs))))
 
 @export
-(defun forward (net &key names input)
+(defun forward (net &key names input destination)
   (when input
     (set-net-input net input))
   (if (< 1 (length names))
-      (forward-layers net names)
-      (forward-layer net (or (first names) ""))))
+      (forward-layers net names destination)
+      (forward-layer net (or (first names) "") destination)))
 
 @export
 (defun nms-boxes (boxes scores score-threshold nms-threshold &key (eta 1.0) (top-k 0))
@@ -107,15 +110,17 @@
   (with-foreign-resource (cboxes (rotated-rects-to-cv boxes)
                           :free cv-rotated-rects-free)
     (with-foreign-resource (cscores (floats-to-cv scores)
-                            :free cffi:foreign-free)
-      (with-foreign-resource (cindices (cv-dnn-nms-boxes cboxes
-                                                         cscores
-                                                         (as-single-float score-threshold)
-                                                         (as-single-float nms-threshold)
-                                                         eta
-                                                         top-k)
+                            :free cv-floats-free)
+      (with-foreign-resource (cindices (ints-to-cv nil)
                               :free cv-ints-free)
-        (check-cv-error #'cffi:null-pointer-p cindices)
+        (cv-call cv-dnn-nms-boxes
+                 cboxes
+                 cscores
+                 (as-single-float score-threshold)
+                 (as-single-float nms-threshold)
+                 eta
+                 top-k
+                 cindices)
         (ints-from-cv cindices)))))
 
 (defclass layer (proxy) ())
@@ -123,41 +128,48 @@
 (defun layer-from-cv (clayer)
   (make-instance 'layer
                  :peer clayer
-                 :release #'cv-dnn-layer-free))
+                 :release (lambda (self) (cv-dnn-layer-free self))))
 
 @export
 (defun layer-by-name (net name)
-  (let ((clayer (cv-dnn-net-get-layer-with-name (peer net) name)))
-    (check-cv-error #'cffi:null-pointer-p clayer)
-    (layer-from-cv clayer)))
+  (layer-from-cv (cv-call-out cv-dnn-net-get-layer-with-name
+                              (peer net)
+                              name
+                              :pointer)))
 
 @export
 (defun layer-by-id (net id)
-  (let ((clayer (cv-dnn-net-get-layer-with-id (peer net) id)))
-    (check-cv-error #'cffi:null-pointer-p clayer)
-    (layer-from-cv clayer)))
+  (layer-from-cv (cv-call-out cv-dnn-net-get-layer-with-id
+                              (peer net)
+                              id
+                              :pointer)))
 
 @export
 (defun layer-blobs (layer)
-  (mats-from-cv (cv-dnn-layer-blobs (peer layer))))
+  (with-foreign-resource (cmats (mats-to-cv nil) :free cv-free-mats)
+    (cv-call cv-dnn-layer-blobs (peer layer) cmats)
+    (mats-from-cv cmats)))
 
 @export
 (defun add-blob (layer blob)
-  (check-cv-error #'null
-                  (cv-dnn-layer-add-blob (peer layer) (peer blob))))
+  (cv-call cv-dnn-layer-add-blob (peer layer) (peer blob))
+  blob)
 
 @export
 (defun layer-names (net)
-  (with-foreign-resource (cstrings (cv-dnn-net-get-layer-names (peer net))
-                                  :free cv-strings-free)
-    (check-cv-error #'cffi:null-pointer-p cstrings)
+  (with-foreign-resource (cstrings (strings-to-cv nil)
+                          :free cv-strings-free)
+    (cv-call cv-dnn-net-get-layer-names (peer net) cstrings)
     (strings-from-cv cstrings)))
 
 @export
 (defun performance-profile (net)
-  (with-foreign-resource (ctimes (cv-doubles-new)
+  (with-foreign-resource (ctimes (cv-call-out cv-doubles-new :pointer)
                           :free cv-doubles-free)
-    (let ((result (cv-dnn-net-get-perf-profile (peer net)
-                                               ctimes)))
-      (values result
+    (cffi:with-foreign-object (ctime :int)
+      (cv-call cv-dnn-net-get-perf-profile
+               (peer net)
+               ctimes
+               ctime)
+      (values (cffi:mem-ref ctime :int)
               (doubles-from-cv ctimes)))))

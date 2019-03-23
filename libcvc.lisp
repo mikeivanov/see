@@ -119,251 +119,307 @@
 
 (cffi:defcfun ("cv_clear_error" #.(cl-swig-lispify "cv_clear_error" 'function)) :void)
 
-(cffi:defcfun ("cv_buffer_new" #.(cl-swig-lispify "cv_buffer_new" 'function)) :pointer)
+(cffi:defcfun ("cv_strings_new" #.(cl-swig-lispify "cv_strings_new" 'function)) :int
+  (out_new_strings :pointer))
 
-(cffi:defcfun ("cv_buffer_new_with_data" #.(cl-swig-lispify "cv_buffer_new_with_data" 'function)) :pointer
-  (size :int)
-  (data :pointer))
-
-(cffi:defcfun ("cv_buffer_free" #.(cl-swig-lispify "cv_buffer_free" 'function)) :void
-  (self :pointer))
-
-(cffi:defcfun ("cv_buffer_size" #.(cl-swig-lispify "cv_buffer_size" 'function)) :int
-  (self :pointer))
-
-(cffi:defcfun ("cv_buffer_data" #.(cl-swig-lispify "cv_buffer_data" 'function)) :pointer
-  (self :pointer))
-
-(cffi:defcfun ("cv_strings_new" #.(cl-swig-lispify "cv_strings_new" 'function)) :pointer)
-
-(cffi:defcfun ("cv_strings_new_with_data" #.(cl-swig-lispify "cv_strings_new_with_data" 'function)) :pointer
+(cffi:defcfun ("cv_strings_new_with_data" #.(cl-swig-lispify "cv_strings_new_with_data" 'function)) :int
   (count :int)
-  (strings :pointer))
+  (data :pointer)
+  (out_new_strings :pointer))
 
-(cffi:defcfun ("cv_strings_add" #.(cl-swig-lispify "cv_strings_add" 'function)) :pointer
+(cffi:defcfun ("cv_strings_add" #.(cl-swig-lispify "cv_strings_add" 'function)) :int
   (self :pointer)
   (string :string))
 
-(cffi:defcfun ("cv_strings_free" #.(cl-swig-lispify "cv_strings_free" 'function)) :void
+(cffi:defcfun ("cv_strings_free" #.(cl-swig-lispify "cv_strings_free" 'function)) :int
   (self :pointer))
 
 (cffi:defcfun ("cv_strings_count" #.(cl-swig-lispify "cv_strings_count" 'function)) :int
+  (self :pointer)
+  (out_count :pointer))
+
+(cffi:defcfun ("cv_strings_get" #.(cl-swig-lispify "cv_strings_get" 'function)) :int
+  (self :pointer)
+  (idx :int)
+  (out_string :pointer))
+
+(cffi:defcfun ("cv_buffer_new" #.(cl-swig-lispify "cv_buffer_new" 'function)) :int
+  (out_new_buffer :pointer))
+
+(cffi:defcfun ("cv_buffer_new_with_data" #.(cl-swig-lispify "cv_buffer_new_with_data" 'function)) :int
+  (size :int)
+  (data :pointer)
+  (out_new_buffer :pointer))
+
+(cffi:defcfun ("cv_buffer_free" #.(cl-swig-lispify "cv_buffer_free" 'function)) :int
   (self :pointer))
 
-(cffi:defcfun ("cv_strings_get" #.(cl-swig-lispify "cv_strings_get" 'function)) :string
+(cffi:defcfun ("cv_buffer_size" #.(cl-swig-lispify "cv_buffer_size" 'function)) :int
   (self :pointer)
-  (i :int))
+  (out_size :pointer))
 
-(cffi:defcfun ("cv_ints_new" #.(cl-swig-lispify "cv_ints_new" 'function)) :pointer)
-
-(cffi:defcfun ("cv_ints_new_with_data" #.(cl-swig-lispify "cv_ints_new_with_data" 'function)) :pointer
-  (count :int)
+(cffi:defcfun ("cv_buffer_data" #.(cl-swig-lispify "cv_buffer_data" 'function)) :int
+  (self :pointer)
   (data :pointer))
 
-(cffi:defcfun ("cv_ints_free" #.(cl-swig-lispify "cv_ints_free" 'function)) :void
+(cffi:defcfun ("cv_floats_new" #.(cl-swig-lispify "cv_floats_new" 'function)) :int
+  (out_new_floats :pointer))
+
+(cffi:defcfun ("cv_float_new_with_data" #.(cl-swig-lispify "cv_float_new_with_data" 'function)) :int
+  (size :int)
+  (data :pointer)
+  (out_new_floats :pointer))
+
+(cffi:defcfun ("cv_floats_free" #.(cl-swig-lispify "cv_floats_free" 'function)) :int
+  (self :pointer))
+
+(cffi:defcfun ("cv_floats_count" #.(cl-swig-lispify "cv_floats_count" 'function)) :int
+  (self :pointer)
+  (out_count :pointer))
+
+(cffi:defcfun ("cv_floats_add" #.(cl-swig-lispify "cv_floats_add" 'function)) :int
+  (self :pointer)
+  (val :float))
+
+(cffi:defcfun ("cv_floats_get" #.(cl-swig-lispify "cv_floats_get" 'function)) :int
+  (self :pointer)
+  (idx :int)
+  (out_value :pointer))
+
+(cffi:defcfun ("cv_floats_data" #.(cl-swig-lispify "cv_floats_data" 'function)) :int
+  (self :pointer)
+  (out_data :pointer))
+
+(cffi:defcfun ("cv_doubles_new" #.(cl-swig-lispify "cv_doubles_new" 'function)) :int
+  (out_new_doubles :pointer))
+
+(cffi:defcfun ("cv_doubles_new_with_data" #.(cl-swig-lispify "cv_doubles_new_with_data" 'function)) :int
+  (size :int)
+  (data :pointer)
+  (out_new_doubles :pointer))
+
+(cffi:defcfun ("cv_doubles_free" #.(cl-swig-lispify "cv_doubles_free" 'function)) :int
+  (self :pointer))
+
+(cffi:defcfun ("cv_doubles_count" #.(cl-swig-lispify "cv_doubles_count" 'function)) :int
+  (self :pointer)
+  (out_size :pointer))
+
+(cffi:defcfun ("cv_doubles_add" #.(cl-swig-lispify "cv_doubles_add" 'function)) :int
+  (self :pointer)
+  (val :double))
+
+(cffi:defcfun ("cv_doubles_get" #.(cl-swig-lispify "cv_doubles_get" 'function)) :int
+  (self :pointer)
+  (idx :int)
+  (out_value :pointer))
+
+(cffi:defcfun ("cv_doubles_data" #.(cl-swig-lispify "cv_doubles_data" 'function)) :int
+  (self :pointer)
+  (out_data :pointer))
+
+(cffi:defcfun ("cv_ints_new" #.(cl-swig-lispify "cv_ints_new" 'function)) :int
+  (out_new_ints :pointer))
+
+(cffi:defcfun ("cv_ints_new_with_data" #.(cl-swig-lispify "cv_ints_new_with_data" 'function)) :int
+  (count :int)
+  (data :pointer)
+  (out_new_ints :pointer))
+
+(cffi:defcfun ("cv_ints_free" #.(cl-swig-lispify "cv_ints_free" 'function)) :int
   (self :pointer))
 
 (cffi:defcfun ("cv_ints_count" #.(cl-swig-lispify "cv_ints_count" 'function)) :int
-  (self :pointer))
+  (self :pointer)
+  (out_size :pointer))
 
-(cffi:defcfun ("cv_ints_add" #.(cl-swig-lispify "cv_ints_add" 'function)) :pointer
+(cffi:defcfun ("cv_ints_add" #.(cl-swig-lispify "cv_ints_add" 'function)) :int
   (self :pointer)
   (val :int))
 
 (cffi:defcfun ("cv_ints_get" #.(cl-swig-lispify "cv_ints_get" 'function)) :int
   (self :pointer)
-  (i :int))
+  (idx :int)
+  (out_value :pointer))
 
-(cffi:defcfun ("cv_ints_data" #.(cl-swig-lispify "cv_ints_data" 'function)) :pointer
-  (self :pointer))
-
-(cffi:defcfun ("cv_floats_new" #.(cl-swig-lispify "cv_floats_new" 'function)) :pointer)
-
-(cffi:defcfun ("cv_floats_new_with_data" #.(cl-swig-lispify "cv_floats_new_with_data" 'function)) :pointer
-  (size :int)
-  (data :pointer))
-
-(cffi:defcfun ("cv_floats_free" #.(cl-swig-lispify "cv_floats_free" 'function)) :void
-  (self :pointer))
-
-(cffi:defcfun ("cv_floats_count" #.(cl-swig-lispify "cv_floats_count" 'function)) :int
-  (self :pointer))
-
-(cffi:defcfun ("cv_floats_add" #.(cl-swig-lispify "cv_floats_add" 'function)) :pointer
+(cffi:defcfun ("cv_ints_data" #.(cl-swig-lispify "cv_ints_data" 'function)) :int
   (self :pointer)
-  (val :float))
+  (out_data :pointer))
 
-(cffi:defcfun ("cv_floats_get" #.(cl-swig-lispify "cv_floats_get" 'function)) :float
-  (self :pointer)
-  (i :int))
-
-(cffi:defcfun ("cv_floats_data" #.(cl-swig-lispify "cv_floats_data" 'function)) :pointer
-  (self :pointer))
-
-(cffi:defcfun ("cv_doubles_new" #.(cl-swig-lispify "cv_doubles_new" 'function)) :pointer)
-
-(cffi:defcfun ("cv_doubles_new_with_data" #.(cl-swig-lispify "cv_doubles_new_with_data" 'function)) :pointer
-  (size :int)
-  (data :pointer))
-
-(cffi:defcfun ("cv_doubles_free" #.(cl-swig-lispify "cv_doubles_free" 'function)) :void
-  (self :pointer))
-
-(cffi:defcfun ("cv_doubles_count" #.(cl-swig-lispify "cv_doubles_count" 'function)) :int
-  (self :pointer))
-
-(cffi:defcfun ("cv_doubles_add" #.(cl-swig-lispify "cv_doubles_add" 'function)) :pointer
-  (self :pointer)
-  (val :double))
-
-(cffi:defcfun ("cv_doubles_get" #.(cl-swig-lispify "cv_doubles_get" 'function)) :double
-  (self :pointer)
-  (i :int))
-
-(cffi:defcfun ("cv_doubles_data" #.(cl-swig-lispify "cv_doubles_data" 'function)) :pointer
-  (self :pointer))
-
-(cffi:defcfun ("cv_size_new" #.(cl-swig-lispify "cv_size_new" 'function)) :pointer
-  (w :float)
-  (h :float))
-
-(cffi:defcfun ("cv_size_copy" #.(cl-swig-lispify "cv_size_copy" 'function)) :pointer
-  (self :pointer))
-
-(cffi:defcfun ("cv_size_free" #.(cl-swig-lispify "cv_size_free" 'function)) :void
-  (self :pointer))
-
-(cffi:defcfun ("cv_size_width" #.(cl-swig-lispify "cv_size_width" 'function)) :float
-  (self :pointer))
-
-(cffi:defcfun ("cv_size_height" #.(cl-swig-lispify "cv_size_height" 'function)) :float
-  (self :pointer))
-
-(cffi:defcfun ("cv_scalar_new" #.(cl-swig-lispify "cv_scalar_new" 'function)) :pointer
+(cffi:defcfun ("cv_scalar_new" #.(cl-swig-lispify "cv_scalar_new" 'function)) :int
   (a :double)
   (b :double)
   (c :double)
-  (d :double))
+  (d :double)
+  (out_scalar :pointer))
 
-(cffi:defcfun ("cv_scalar_copy" #.(cl-swig-lispify "cv_scalar_copy" 'function)) :pointer
+(cffi:defcfun ("cv_scalar_copy" #.(cl-swig-lispify "cv_scalar_copy" 'function)) :int
+  (self :pointer)
+  (out_scalar :pointer))
+
+(cffi:defcfun ("cv_scalar_free" #.(cl-swig-lispify "cv_scalar_free" 'function)) :int
   (self :pointer))
 
-(cffi:defcfun ("cv_scalar_free" #.(cl-swig-lispify "cv_scalar_free" 'function)) :void
+(cffi:defcfun ("cv_scalar_data" #.(cl-swig-lispify "cv_scalar_data" 'function)) :int
+  (self :pointer)
+  (out_data :pointer))
+
+(cffi:defcfun ("cv_size_new" #.(cl-swig-lispify "cv_size_new" 'function)) :int
+  (w :float)
+  (h :float)
+  (out_new_size :pointer))
+
+(cffi:defcfun ("cv_size_copy" #.(cl-swig-lispify "cv_size_copy" 'function)) :int
+  (self :pointer)
+  (out_new_size :pointer))
+
+(cffi:defcfun ("cv_size_free" #.(cl-swig-lispify "cv_size_free" 'function)) :int
   (self :pointer))
 
-(cffi:defcfun ("cv_scalar_values" #.(cl-swig-lispify "cv_scalar_values" 'function)) :pointer
-  (self :pointer))
+(cffi:defcfun ("cv_size_width" #.(cl-swig-lispify "cv_size_width" 'function)) :int
+  (self :pointer)
+  (out_width :pointer))
 
-(cffi:defcfun ("cv_point_new" #.(cl-swig-lispify "cv_point_new" 'function)) :pointer
+(cffi:defcfun ("cv_size_height" #.(cl-swig-lispify "cv_size_height" 'function)) :int
+  (self :pointer)
+  (out_height :pointer))
+
+(cffi:defcfun ("cv_point_new" #.(cl-swig-lispify "cv_point_new" 'function)) :int
   (x :float)
-  (y :float))
+  (y :float)
+  (out_new_point :pointer))
 
-(cffi:defcfun ("cv_point_copy" #.(cl-swig-lispify "cv_point_copy" 'function)) :pointer
+(cffi:defcfun ("cv_point_copy" #.(cl-swig-lispify "cv_point_copy" 'function)) :int
+  (self :pointer)
+  (out_new_point :pointer))
+
+(cffi:defcfun ("cv_point_free" #.(cl-swig-lispify "cv_point_free" 'function)) :int
   (self :pointer))
 
-(cffi:defcfun ("cv_point_free" #.(cl-swig-lispify "cv_point_free" 'function)) :void
-  (self :pointer))
+(cffi:defcfun ("cv_point_x" #.(cl-swig-lispify "cv_point_x" 'function)) :int
+  (self :pointer)
+  (out_x :pointer))
 
-(cffi:defcfun ("cv_point_x" #.(cl-swig-lispify "cv_point_x" 'function)) :float
-  (self :pointer))
+(cffi:defcfun ("cv_point_y" #.(cl-swig-lispify "cv_point_y" 'function)) :int
+  (self :pointer)
+  (out_y :pointer))
 
-(cffi:defcfun ("cv_point_y" #.(cl-swig-lispify "cv_point_y" 'function)) :float
-  (self :pointer))
+(cffi:defcfun ("cv_points_new" #.(cl-swig-lispify "cv_points_new" 'function)) :int
+  (out_new_points :pointer))
 
-(cffi:defcfun ("cv_points_new" #.(cl-swig-lispify "cv_points_new" 'function)) :pointer)
-
-(cffi:defcfun ("cv_points_new_with_data" #.(cl-swig-lispify "cv_points_new_with_data" 'function)) :pointer
+(cffi:defcfun ("cv_points_new_with_data" #.(cl-swig-lispify "cv_points_new_with_data" 'function)) :int
   (count :int)
-  (data :pointer))
+  (data :pointer)
+  (out_new_points :pointer))
 
-(cffi:defcfun ("cv_points_add" #.(cl-swig-lispify "cv_points_add" 'function)) :pointer
+(cffi:defcfun ("cv_points_add" #.(cl-swig-lispify "cv_points_add" 'function)) :int
   (self :pointer)
   (point :pointer))
 
-(cffi:defcfun ("cv_points_free" #.(cl-swig-lispify "cv_points_free" 'function)) :void
+(cffi:defcfun ("cv_points_free" #.(cl-swig-lispify "cv_points_free" 'function)) :int
   (self :pointer))
 
 (cffi:defcfun ("cv_points_count" #.(cl-swig-lispify "cv_points_count" 'function)) :int
-  (self :pointer))
-
-(cffi:defcfun ("cv_points_get" #.(cl-swig-lispify "cv_points_get" 'function)) :pointer
   (self :pointer)
-  (idx :int))
+  (out_count :pointer))
 
-(cffi:defcfun ("cv_rect_new" #.(cl-swig-lispify "cv_rect_new" 'function)) :pointer
+(cffi:defcfun ("cv_points_get" #.(cl-swig-lispify "cv_points_get" 'function)) :int
+  (self :pointer)
+  (idx :int)
+  (out_point :pointer))
+
+(cffi:defcfun ("cv_rect_new" #.(cl-swig-lispify "cv_rect_new" 'function)) :int
   (x :float)
   (y :float)
   (w :float)
-  (h :float))
+  (h :float)
+  (out_new_rect :pointer))
 
-(cffi:defcfun ("cv_rect_copy" #.(cl-swig-lispify "cv_rect_copy" 'function)) :pointer
+(cffi:defcfun ("cv_rect_copy" #.(cl-swig-lispify "cv_rect_copy" 'function)) :int
+  (self :pointer)
+  (out_new_rect :pointer))
+
+(cffi:defcfun ("cv_rect_free" #.(cl-swig-lispify "cv_rect_free" 'function)) :int
   (self :pointer))
 
-(cffi:defcfun ("cv_rect_free" #.(cl-swig-lispify "cv_rect_free" 'function)) :void
-  (self :pointer))
+(cffi:defcfun ("cv_rect_x" #.(cl-swig-lispify "cv_rect_x" 'function)) :int
+  (self :pointer)
+  (out_x :pointer))
 
-(cffi:defcfun ("cv_rect_x" #.(cl-swig-lispify "cv_rect_x" 'function)) :float
-  (self :pointer))
+(cffi:defcfun ("cv_rect_y" #.(cl-swig-lispify "cv_rect_y" 'function)) :int
+  (self :pointer)
+  (out_y :pointer))
 
-(cffi:defcfun ("cv_rect_y" #.(cl-swig-lispify "cv_rect_y" 'function)) :float
-  (self :pointer))
+(cffi:defcfun ("cv_rect_width" #.(cl-swig-lispify "cv_rect_width" 'function)) :int
+  (self :pointer)
+  (out_width :pointer))
 
-(cffi:defcfun ("cv_rect_width" #.(cl-swig-lispify "cv_rect_width" 'function)) :float
-  (self :pointer))
+(cffi:defcfun ("cv_rect_height" #.(cl-swig-lispify "cv_rect_height" 'function)) :int
+  (self :pointer)
+  (out_height :pointer))
 
-(cffi:defcfun ("cv_rect_height" #.(cl-swig-lispify "cv_rect_height" 'function)) :float
-  (self :pointer))
-
-(cffi:defcfun ("cv_rotated_rect_new" #.(cl-swig-lispify "cv_rotated_rect_new" 'function)) :pointer
+(cffi:defcfun ("cv_rotated_rect_new" #.(cl-swig-lispify "cv_rotated_rect_new" 'function)) :int
   (x :float)
   (y :float)
   (width :float)
   (height :float)
-  (angle :float))
+  (angle :float)
+  (out_new_rr :pointer))
 
-(cffi:defcfun ("cv_rotated_rect_copy" #.(cl-swig-lispify "cv_rotated_rect_copy" 'function)) :pointer
+(cffi:defcfun ("cv_rotated_rect_copy" #.(cl-swig-lispify "cv_rotated_rect_copy" 'function)) :int
+  (self :pointer)
+  (out_new_rr :pointer))
+
+(cffi:defcfun ("cv_rotated_rect_free" #.(cl-swig-lispify "cv_rotated_rect_free" 'function)) :int
   (self :pointer))
 
-(cffi:defcfun ("cv_rotated_rect_free" #.(cl-swig-lispify "cv_rotated_rect_free" 'function)) :void
-  (self :pointer))
+(cffi:defcfun ("cv_rotated_rect_x" #.(cl-swig-lispify "cv_rotated_rect_x" 'function)) :int
+  (self :pointer)
+  (out_x :pointer))
 
-(cffi:defcfun ("cv_rotated_rect_x" #.(cl-swig-lispify "cv_rotated_rect_x" 'function)) :float
-  (self :pointer))
+(cffi:defcfun ("cv_rotated_rect_y" #.(cl-swig-lispify "cv_rotated_rect_y" 'function)) :int
+  (self :pointer)
+  (out_y :pointer))
 
-(cffi:defcfun ("cv_rotated_rect_y" #.(cl-swig-lispify "cv_rotated_rect_y" 'function)) :float
-  (self :pointer))
+(cffi:defcfun ("cv_rotated_rect_width" #.(cl-swig-lispify "cv_rotated_rect_width" 'function)) :int
+  (self :pointer)
+  (out_width :pointer))
 
-(cffi:defcfun ("cv_rotated_rect_width" #.(cl-swig-lispify "cv_rotated_rect_width" 'function)) :float
-  (self :pointer))
+(cffi:defcfun ("cv_rotated_rect_height" #.(cl-swig-lispify "cv_rotated_rect_height" 'function)) :int
+  (self :pointer)
+  (out_height :pointer))
 
-(cffi:defcfun ("cv_rotated_rect_height" #.(cl-swig-lispify "cv_rotated_rect_height" 'function)) :float
-  (self :pointer))
+(cffi:defcfun ("cv_rotated_rect_angle" #.(cl-swig-lispify "cv_rotated_rect_angle" 'function)) :int
+  (self :pointer)
+  (out_angle :pointer))
 
-(cffi:defcfun ("cv_rotated_rect_angle" #.(cl-swig-lispify "cv_rotated_rect_angle" 'function)) :float
-  (self :pointer))
+(cffi:defcfun ("cv_rotated_rect_points" #.(cl-swig-lispify "cv_rotated_rect_points" 'function)) :int
+  (self :pointer)
+  (out_new_points :pointer))
 
-(cffi:defcfun ("cv_rotated_rect_points" #.(cl-swig-lispify "cv_rotated_rect_points" 'function)) :pointer
-  (self :pointer))
+(cffi:defcfun ("cv_rotated_rects_new" #.(cl-swig-lispify "cv_rotated_rects_new" 'function)) :int
+  (out_new_rr :pointer))
 
-(cffi:defcfun ("cv_rotated_rects_new" #.(cl-swig-lispify "cv_rotated_rects_new" 'function)) :pointer)
-
-(cffi:defcfun ("cv_rotated_rects_new_with_data" #.(cl-swig-lispify "cv_rotated_rects_new_with_data" 'function)) :pointer
+(cffi:defcfun ("cv_rotated_rects_new_with_data" #.(cl-swig-lispify "cv_rotated_rects_new_with_data" 'function)) :int
   (count :int)
-  (data :pointer))
+  (data :pointer)
+  (out_new_rr :pointer))
 
-(cffi:defcfun ("cv_rotated_rects_add" #.(cl-swig-lispify "cv_rotated_rects_add" 'function)) :pointer
+(cffi:defcfun ("cv_rotated_rects_add" #.(cl-swig-lispify "cv_rotated_rects_add" 'function)) :int
   (self :pointer)
   (rect :pointer))
 
-(cffi:defcfun ("cv_rotated_rects_free" #.(cl-swig-lispify "cv_rotated_rects_free" 'function)) :void
+(cffi:defcfun ("cv_rotated_rects_free" #.(cl-swig-lispify "cv_rotated_rects_free" 'function)) :int
   (self :pointer))
 
 (cffi:defcfun ("cv_rotated_rects_count" #.(cl-swig-lispify "cv_rotated_rects_count" 'function)) :int
-  (self :pointer))
-
-(cffi:defcfun ("cv_rotated_rects_get" #.(cl-swig-lispify "cv_rotated_rects_get" 'function)) :pointer
   (self :pointer)
-  (idx :int))
+  (out_count :pointer))
+
+(cffi:defcfun ("cv_rotated_rects_get" #.(cl-swig-lispify "cv_rotated_rects_get" 'function)) :int
+  (self :pointer)
+  (idx :int)
+  (out_ref_rect :pointer))
 
 (cffi:defcenum #.(cl-swig-lispify "CvDepths" 'enumname)
 	(#.(cl-swig-lispify "DEPTH_8U" 'enumvalue :keyword) #.0)
@@ -375,159 +431,190 @@
 	(#.(cl-swig-lispify "DEPTH_64F" 'enumvalue :keyword) #.6)
 	(#.(cl-swig-lispify "DEPTH_16F" 'enumvalue :keyword) #.7))
 
-(cffi:defcfun ("cv_mats_new" #.(cl-swig-lispify "cv_mats_new" 'function)) :pointer)
+(cffi:defcfun ("cv_mats_new" #.(cl-swig-lispify "cv_mats_new" 'function)) :int
+  (out_new_mats :pointer))
 
-(cffi:defcfun ("cv_mats_new_copy" #.(cl-swig-lispify "cv_mats_new_copy" 'function)) :pointer
-  (self :pointer))
+(cffi:defcfun ("cv_mats_new_copy" #.(cl-swig-lispify "cv_mats_new_copy" 'function)) :int
+  (mats :pointer)
+  (out_new_mats :pointer))
 
-(cffi:defcfun ("cv_mats_new_with_data" #.(cl-swig-lispify "cv_mats_new_with_data" 'function)) :pointer
-  (size :int)
-  (data :pointer))
+(cffi:defcfun ("cv_mats_new_with_data" #.(cl-swig-lispify "cv_mats_new_with_data" 'function)) :int
+  (count :int)
+  (data :pointer)
+  (out_new_mats :pointer))
 
-(cffi:defcfun ("cv_mats_free" #.(cl-swig-lispify "cv_mats_free" 'function)) :void
-  (self :pointer))
-
-(cffi:defcfun ("cv_mats_add" #.(cl-swig-lispify "cv_mats_add" 'function)) :pointer
+(cffi:defcfun ("cv_mats_add" #.(cl-swig-lispify "cv_mats_add" 'function)) :int
   (self :pointer)
   (mat :pointer))
 
-(cffi:defcfun ("cv_mats_count" #.(cl-swig-lispify "cv_mats_count" 'function)) :int
+(cffi:defcfun ("cv_mats_free" #.(cl-swig-lispify "cv_mats_free" 'function)) :int
   (self :pointer))
 
-(cffi:defcfun ("cv_mats_get" #.(cl-swig-lispify "cv_mats_get" 'function)) :pointer
+(cffi:defcfun ("cv_mats_count" #.(cl-swig-lispify "cv_mats_count" 'function)) :int
   (self :pointer)
-  (i :int))
+  (out_count :pointer))
+
+(cffi:defcfun ("cv_mats_get" #.(cl-swig-lispify "cv_mats_get" 'function)) :int
+  (self :pointer)
+  (i :int)
+  (out_mat_ref :pointer))
 
 (cffi:defcfun ("cv_make_type" #.(cl-swig-lispify "cv_make_type" 'function)) :int
   (depth :int)
-  (channels :int))
+  (channels :int)
+  (out_type :pointer))
 
 (cffi:defcfun ("cv_type_depth" #.(cl-swig-lispify "cv_type_depth" 'function)) :int
-  (type :int))
+  (type :int)
+  (out_depth :pointer))
 
 (cffi:defcfun ("cv_type_channels" #.(cl-swig-lispify "cv_type_channels" 'function)) :int
-  (type :int))
+  (type :int)
+  (out_channels :pointer))
 
-(cffi:defcfun ("cv_mat_new" #.(cl-swig-lispify "cv_mat_new" 'function)) :pointer)
+(cffi:defcfun ("cv_mat_new" #.(cl-swig-lispify "cv_mat_new" 'function)) :int
+  (out_new_mat :pointer))
 
-(cffi:defcfun ("cv_mat_new_copy" #.(cl-swig-lispify "cv_mat_new_copy" 'function)) :pointer
+(cffi:defcfun ("cv_mat_new_copy" #.(cl-swig-lispify "cv_mat_new_copy" 'function)) :int
+  (self :pointer)
+  (out_new_mat :pointer))
+
+(cffi:defcfun ("cv_mat_new_with_scalar" #.(cl-swig-lispify "cv_mat_new_with_scalar" 'function)) :int
+  (shape :pointer)
+  (type :int)
+  (scalar :pointer)
+  (out_new_mat :pointer))
+
+(cffi:defcfun ("cv_mat_new_with_data" #.(cl-swig-lispify "cv_mat_new_with_data" 'function)) :int
+  (shape :pointer)
+  (type :int)
+  (data :pointer)
+  (out_new_mat :pointer))
+
+(cffi:defcfun ("cv_mat_new_with_roi" #.(cl-swig-lispify "cv_mat_new_with_roi" 'function)) :int
+  (source :pointer)
+  (roi :pointer)
+  (out_new_mat :pointer))
+
+(cffi:defcfun ("cv_mat_free" #.(cl-swig-lispify "cv_mat_free" 'function)) :int
   (self :pointer))
 
-(cffi:defcfun ("cv_mat_new_with_scalar" #.(cl-swig-lispify "cv_mat_new_with_scalar" 'function)) :pointer
-  (shape :pointer)
-  (type :int)
-  (scalar :pointer))
-
-(cffi:defcfun ("cv_mat_new_with_data" #.(cl-swig-lispify "cv_mat_new_with_data" 'function)) :pointer
-  (shape :pointer)
-  (type :int)
-  (data :pointer))
-
-(cffi:defcfun ("cv_mat_new_with_roi" #.(cl-swig-lispify "cv_mat_new_with_roi" 'function)) :pointer
+(cffi:defcfun ("cv_mat_empty" #.(cl-swig-lispify "cv_mat_empty" 'function)) :int
   (self :pointer)
-  (roi :pointer))
+  (out_value :pointer))
 
-(cffi:defcfun ("cv_mat_free" #.(cl-swig-lispify "cv_mat_free" 'function)) :void
-  (m :pointer))
-
-(cffi:defcfun ("cv_mat_empty" #.(cl-swig-lispify "cv_mat_empty" 'function)) :bool
-  (m :pointer))
-
-(cffi:defcfun ("cv_mat_copy_to" #.(cl-swig-lispify "cv_mat_copy_to" 'function)) :bool
-  (m :pointer)
+(cffi:defcfun ("cv_mat_copy_to" #.(cl-swig-lispify "cv_mat_copy_to" 'function)) :int
+  (self :pointer)
   (dst :pointer))
 
-(cffi:defcfun ("cv_mat_copy_to_with_mask" #.(cl-swig-lispify "cv_mat_copy_to_with_mask" 'function)) :bool
-  (m :pointer)
+(cffi:defcfun ("cv_mat_copy_to_with_mask" #.(cl-swig-lispify "cv_mat_copy_to_with_mask" 'function)) :int
+  (self :pointer)
   (dst :pointer)
   (mask :pointer))
 
-(cffi:defcfun ("cv_mat_convert_to" #.(cl-swig-lispify "cv_mat_convert_to" 'function)) :bool
+(cffi:defcfun ("cv_mat_convert_to" #.(cl-swig-lispify "cv_mat_convert_to" 'function)) :int
   (self :pointer)
   (dst :pointer)
   (type :int)
   (alpha :double)
   (beta :double))
 
-(cffi:defcfun ("cv_mat_patch_nans" #.(cl-swig-lispify "cv_mat_patch_nans" 'function)) :void
-  (m :pointer)
+(cffi:defcfun ("cv_mat_reshape" #.(cl-swig-lispify "cv_mat_reshape" 'function)) :int
+  (self :pointer)
+  (cn :int)
+  (shape :pointer)
+  (out_mat :pointer))
+
+(cffi:defcfun ("cv_mat_patch_nans" #.(cl-swig-lispify "cv_mat_patch_nans" 'function)) :int
+  (self :pointer)
   (val :double))
 
-(cffi:defcfun ("cv_mat_mean" #.(cl-swig-lispify "cv_mat_mean" 'function)) :pointer
-  (m :pointer))
+(cffi:defcfun ("cv_mat_mean" #.(cl-swig-lispify "cv_mat_mean" 'function)) :int
+  (self :pointer)
+  (out_scalar :pointer))
 
-(cffi:defcfun ("cv_mat_lut" #.(cl-swig-lispify "cv_mat_lut" 'function)) :bool
-  (src :pointer)
+(cffi:defcfun ("cv_mat_lut" #.(cl-swig-lispify "cv_mat_lut" 'function)) :int
+  (self :pointer)
   (lut :pointer)
   (dst :pointer))
 
-(cffi:defcfun ("cv_mat_channels" #.(cl-swig-lispify "cv_mat_channels" 'function)) :int
-  (m :pointer))
-
-(cffi:defcfun ("cv_mat_depth" #.(cl-swig-lispify "cv_mat_depth" 'function)) :int
-  (m :pointer))
-
-(cffi:defcfun ("cv_mat_type" #.(cl-swig-lispify "cv_mat_type" 'function)) :int
-  (m :pointer))
-
-(cffi:defcfun ("cv_mat_elem_size" #.(cl-swig-lispify "cv_mat_elem_size" 'function)) :long
-  (self :pointer))
-
-(cffi:defcfun ("cv_mat_step" #.(cl-swig-lispify "cv_mat_step" 'function)) :long
-  (m :pointer))
-
-(cffi:defcfun ("cv_mat_is_continuous" #.(cl-swig-lispify "cv_mat_is_continuous" 'function)) :bool
-  (m :pointer))
-
-(cffi:defcfun ("cv_mat_total" #.(cl-swig-lispify "cv_mat_total" 'function)) :long
-  (m :pointer))
-
-(cffi:defcfun ("cv_mat_dims" #.(cl-swig-lispify "cv_mat_dims" 'function)) :int
-  (m :pointer))
-
-(cffi:defcfun ("cv_mat_size" #.(cl-swig-lispify "cv_mat_size" 'function)) :pointer
-  (self :pointer))
-
 (cffi:defcfun ("cv_mat_rows" #.(cl-swig-lispify "cv_mat_rows" 'function)) :int
-  (m :pointer))
+  (self :pointer)
+  (out_rows :pointer))
 
 (cffi:defcfun ("cv_mat_cols" #.(cl-swig-lispify "cv_mat_cols" 'function)) :int
-  (m :pointer))
+  (self :pointer)
+  (out_cols :pointer))
 
-(cffi:defcfun ("cv_mat_reshape" #.(cl-swig-lispify "cv_mat_reshape" 'function)) :pointer
+(cffi:defcfun ("cv_mat_channels" #.(cl-swig-lispify "cv_mat_channels" 'function)) :int
+  (self :pointer)
+  (out_channels :pointer))
+
+(cffi:defcfun ("cv_mat_depth" #.(cl-swig-lispify "cv_mat_depth" 'function)) :int
+  (self :pointer)
+  (out_depth :pointer))
+
+(cffi:defcfun ("cv_mat_type" #.(cl-swig-lispify "cv_mat_type" 'function)) :int
+  (self :pointer)
+  (out_type :pointer))
+
+(cffi:defcfun ("cv_mat_elem_size" #.(cl-swig-lispify "cv_mat_elem_size" 'function)) :int
+  (self :pointer)
+  (out_size :pointer))
+
+(cffi:defcfun ("cv_mat_step" #.(cl-swig-lispify "cv_mat_step" 'function)) :int
+  (self :pointer)
+  (out_step :pointer))
+
+(cffi:defcfun ("cv_mat_is_continuous" #.(cl-swig-lispify "cv_mat_is_continuous" 'function)) :int
+  (self :pointer)
+  (out_continuous :pointer))
+
+(cffi:defcfun ("cv_mat_total" #.(cl-swig-lispify "cv_mat_total" 'function)) :int
+  (self :pointer)
+  (out_total :pointer))
+
+(cffi:defcfun ("cv_mat_dims" #.(cl-swig-lispify "cv_mat_dims" 'function)) :int
+  (self :pointer)
+  (out_dims :pointer))
+
+(cffi:defcfun ("cv_mat_size" #.(cl-swig-lispify "cv_mat_size" 'function)) :int
+  (self :pointer)
+  (out_size :pointer))
+
+(cffi:defcfun ("cv_mat_get_ptr" #.(cl-swig-lispify "cv_mat_get_ptr" 'function)) :int
   (m :pointer)
-  (cn :int)
-  (shape :pointer))
+  (idx :pointer)
+  (out_ptr :pointer))
 
-(cffi:defcfun ("cv_mat_get_ptr" #.(cl-swig-lispify "cv_mat_get_ptr" 'function)) :pointer
-  (m :pointer)
-  (idx :pointer))
+(cffi:defcfun ("cv_get_tick_count" #.(cl-swig-lispify "cv_get_tick_count" 'function)) :int
+  (out_count :pointer))
 
-(cffi:defcfun ("cv_get_tick_count" #.(cl-swig-lispify "cv_get_tick_count" 'function)) :long)
+(cffi:defcfun ("cv_get_tick_frequency" #.(cl-swig-lispify "cv_get_tick_frequency" 'function)) :int
+  (out_freq :pointer))
 
-(cffi:defcfun ("cv_get_tick_frequency" #.(cl-swig-lispify "cv_get_tick_frequency" 'function)) :double)
-
-(cffi:defcfun ("cv_extract_channel" #.(cl-swig-lispify "cv_extract_channel" 'function)) :bool
+(cffi:defcfun ("cv_extract_channel" #.(cl-swig-lispify "cv_extract_channel" 'function)) :int
   (src :pointer)
   (dst :pointer)
   (coi :int))
 
-(cffi:defcfun ("cv_merge" #.(cl-swig-lispify "cv_merge" 'function)) :pointer
-  (channels :pointer))
+(cffi:defcfun ("cv_merge" #.(cl-swig-lispify "cv_merge" 'function)) :int
+  (channels :pointer)
+  (out_mat :pointer))
 
-(cffi:defcfun ("cv_mat_add_mat" #.(cl-swig-lispify "cv_mat_add_mat" 'function)) :bool
+(cffi:defcfun ("cv_mat_add_mat" #.(cl-swig-lispify "cv_mat_add_mat" 'function)) :int
   (mat :pointer)
   (addendum :pointer))
 
-(cffi:defcfun ("cv_mat_add_scalar" #.(cl-swig-lispify "cv_mat_add_scalar" 'function)) :bool
+(cffi:defcfun ("cv_mat_add_scalar" #.(cl-swig-lispify "cv_mat_add_scalar" 'function)) :int
   (mat :pointer)
   (addendum :pointer))
 
-(cffi:defcfun ("cv_mat_mul_const" #.(cl-swig-lispify "cv_mat_mul_const" 'function)) :bool
+(cffi:defcfun ("cv_mat_mul_const" #.(cl-swig-lispify "cv_mat_mul_const" 'function)) :int
   (mat :pointer)
   (multiplier :double))
 
-(cffi:defcfun ("cv_mat_dot" #.(cl-swig-lispify "cv_mat_dot" 'function)) :bool
+(cffi:defcfun ("cv_mat_dot" #.(cl-swig-lispify "cv_mat_dot" 'function)) :int
   (self :pointer)
   (m :pointer)
   (out :pointer))
@@ -1045,68 +1132,77 @@
 	(#.(cl-swig-lispify "CAP_INTEL_MFX" 'enumvalue :keyword) #.2300)
 	(#.(cl-swig-lispify "CAP_XINE" 'enumvalue :keyword) #.2400))
 
-(cffi:defcfun ("cv_video_capture_new" #.(cl-swig-lispify "cv_video_capture_new" 'function)) :pointer)
+(cffi:defcfun ("cv_video_capture_new" #.(cl-swig-lispify "cv_video_capture_new" 'function)) :int
+  (out_capture :pointer))
 
-(cffi:defcfun ("cv_video_capture_free" #.(cl-swig-lispify "cv_video_capture_free" 'function)) :void
+(cffi:defcfun ("cv_video_capture_free" #.(cl-swig-lispify "cv_video_capture_free" 'function)) :int
   (v :pointer))
 
-(cffi:defcfun ("cv_video_capture_open_uri" #.(cl-swig-lispify "cv_video_capture_open_uri" 'function)) :bool
+(cffi:defcfun ("cv_video_capture_open_uri" #.(cl-swig-lispify "cv_video_capture_open_uri" 'function)) :int
   (v :pointer)
   (uri :string)
   (api_preference :int))
 
-(cffi:defcfun ("cv_video_capture_open_device" #.(cl-swig-lispify "cv_video_capture_open_device" 'function)) :bool
+(cffi:defcfun ("cv_video_capture_open_device" #.(cl-swig-lispify "cv_video_capture_open_device" 'function)) :int
   (v :pointer)
   (device :int)
   (api_preference :int))
 
-(cffi:defcfun ("cv_video_capture_set" #.(cl-swig-lispify "cv_video_capture_set" 'function)) :void
+(cffi:defcfun ("cv_video_capture_set" #.(cl-swig-lispify "cv_video_capture_set" 'function)) :int
   (v :pointer)
   (prop :int)
   (param :double))
 
-(cffi:defcfun ("cv_video_capture_get" #.(cl-swig-lispify "cv_video_capture_get" 'function)) :double
+(cffi:defcfun ("cv_video_capture_get" #.(cl-swig-lispify "cv_video_capture_get" 'function)) :int
   (v :pointer)
-  (prop :int))
+  (prop :int)
+  (out_value :pointer))
 
-(cffi:defcfun ("cv_video_capture_is_opened" #.(cl-swig-lispify "cv_video_capture_is_opened" 'function)) :bool
-  (v :pointer))
-
-(cffi:defcfun ("cv_video_capture_read" #.(cl-swig-lispify "cv_video_capture_read" 'function)) :bool
+(cffi:defcfun ("cv_video_capture_is_opened" #.(cl-swig-lispify "cv_video_capture_is_opened" 'function)) :int
   (v :pointer)
-  (buf :pointer))
+  (out_value :pointer))
 
-(cffi:defcfun ("cv_video_capture_grab" #.(cl-swig-lispify "cv_video_capture_grab" 'function)) :bool
-  (v :pointer))
-
-(cffi:defcfun ("cv_video_capture_retrieve" #.(cl-swig-lispify "cv_video_capture_retrieve" 'function)) :bool
+(cffi:defcfun ("cv_video_capture_read" #.(cl-swig-lispify "cv_video_capture_read" 'function)) :int
   (v :pointer)
   (buf :pointer)
-  (flag :int))
+  (out_value :pointer))
 
-(cffi:defcfun ("cv_video_writer_new" #.(cl-swig-lispify "cv_video_writer_new" 'function)) :pointer)
+(cffi:defcfun ("cv_video_capture_grab" #.(cl-swig-lispify "cv_video_capture_grab" 'function)) :int
+  (v :pointer)
+  (out_value :pointer))
 
-(cffi:defcfun ("cv_video_writer_free" #.(cl-swig-lispify "cv_video_writer_free" 'function)) :void
+(cffi:defcfun ("cv_video_capture_retrieve" #.(cl-swig-lispify "cv_video_capture_retrieve" 'function)) :int
+  (v :pointer)
+  (buf :pointer)
+  (flag :int)
+  (out_value :pointer))
+
+(cffi:defcfun ("cv_video_writer_new" #.(cl-swig-lispify "cv_video_writer_new" 'function)) :int
+  (out_writer :pointer))
+
+(cffi:defcfun ("cv_video_writer_free" #.(cl-swig-lispify "cv_video_writer_free" 'function)) :int
   (vw :pointer))
 
 (cffi:defcfun ("cv_video_writer_fourcc" #.(cl-swig-lispify "cv_video_writer_fourcc" 'function)) :int
   (c1 :char)
   (c2 :char)
   (c3 :char)
-  (c4 :char))
+  (c4 :char)
+  (out_value :pointer))
 
-(cffi:defcfun ("cv_video_writer_open" #.(cl-swig-lispify "cv_video_writer_open" 'function)) :bool
+(cffi:defcfun ("cv_video_writer_open" #.(cl-swig-lispify "cv_video_writer_open" 'function)) :int
   (vw :pointer)
   (name :string)
   (fourcc :int)
   (fps :double)
   (size :pointer)
-  (isColor :bool))
+  (is_color :bool))
 
-(cffi:defcfun ("cv_video_writer_is_opened" #.(cl-swig-lispify "cv_video_writer_is_opened" 'function)) :bool
-  (vw :pointer))
+(cffi:defcfun ("cv_video_writer_is_opened" #.(cl-swig-lispify "cv_video_writer_is_opened" 'function)) :int
+  (vw :pointer)
+  (out_value :pointer))
 
-(cffi:defcfun ("cv_video_writer_write" #.(cl-swig-lispify "cv_video_writer_write" 'function)) :bool
+(cffi:defcfun ("cv_video_writer_write" #.(cl-swig-lispify "cv_video_writer_write" 'function)) :int
   (vw :pointer)
   (img :pointer))
 
@@ -1125,45 +1221,50 @@
 	#.(cl-swig-lispify "DNN_TARGET_VULKAN" 'enumvalue :keyword)
 	#.(cl-swig-lispify "DNN_TARGET_FPGA" 'enumvalue :keyword))
 
-(cffi:defcfun ("cv_dnn_read_net" #.(cl-swig-lispify "cv_dnn_read_net" 'function)) :pointer
+(cffi:defcfun ("cv_dnn_read_net" #.(cl-swig-lispify "cv_dnn_read_net" 'function)) :int
   (model :string)
   (config :string)
-  (framework :string))
+  (framework :string)
+  (out_net :pointer))
 
-(cffi:defcfun ("cv_dnn_net_free" #.(cl-swig-lispify "cv_dnn_net_free" 'function)) :void
+(cffi:defcfun ("cv_dnn_net_free" #.(cl-swig-lispify "cv_dnn_net_free" 'function)) :int
   (net :pointer))
 
-(cffi:defcfun ("cv_dnn_net_empty" #.(cl-swig-lispify "cv_dnn_net_empty" 'function)) :bool
-  (net :pointer))
+(cffi:defcfun ("cv_dnn_net_empty" #.(cl-swig-lispify "cv_dnn_net_empty" 'function)) :int
+  (net :pointer)
+  (out_value :pointer))
 
-(cffi:defcfun ("cv_dnn_net_set_input" #.(cl-swig-lispify "cv_dnn_net_set_input" 'function)) :bool
+(cffi:defcfun ("cv_dnn_net_set_input" #.(cl-swig-lispify "cv_dnn_net_set_input" 'function)) :int
   (net :pointer)
   (blob :pointer)
   (name :string)
   (scale_factor :double)
   (mean :pointer))
 
-(cffi:defcfun ("cv_dnn_net_forward" #.(cl-swig-lispify "cv_dnn_net_forward" 'function)) :pointer
+(cffi:defcfun ("cv_dnn_net_forward" #.(cl-swig-lispify "cv_dnn_net_forward" 'function)) :int
   (net :pointer)
-  (output_name :string))
+  (output_name :string)
+  (out_result :pointer))
 
-(cffi:defcfun ("cv_dnn_net_forward_layers" #.(cl-swig-lispify "cv_dnn_net_forward_layers" 'function)) :pointer
+(cffi:defcfun ("cv_dnn_net_forward_layers" #.(cl-swig-lispify "cv_dnn_net_forward_layers" 'function)) :int
   (net :pointer)
-  (layer_names :pointer))
+  (layer_names :pointer)
+  (out_result :pointer))
 
-(cffi:defcfun ("cv_dnn_net_set_preferable_backend" #.(cl-swig-lispify "cv_dnn_net_set_preferable_backend" 'function)) :bool
+(cffi:defcfun ("cv_dnn_net_set_preferable_backend" #.(cl-swig-lispify "cv_dnn_net_set_preferable_backend" 'function)) :int
   (net :pointer)
   (backend :int))
 
-(cffi:defcfun ("cv_dnn_net_set_preferable_target" #.(cl-swig-lispify "cv_dnn_net_set_preferable_target" 'function)) :bool
+(cffi:defcfun ("cv_dnn_net_set_preferable_target" #.(cl-swig-lispify "cv_dnn_net_set_preferable_target" 'function)) :int
   (net :pointer)
   (target :int))
 
-(cffi:defcfun ("cv_dnn_net_get_perf_profile" #.(cl-swig-lispify "cv_dnn_net_get_perf_profile" 'function)) :long
+(cffi:defcfun ("cv_dnn_net_get_perf_profile" #.(cl-swig-lispify "cv_dnn_net_get_perf_profile" 'function)) :int
   (net :pointer)
-  (out_layers :pointer))
+  (out_layers :pointer)
+  (out_time :pointer))
 
-(cffi:defcfun ("cv_dnn_blob_from_images" #.(cl-swig-lispify "cv_dnn_blob_from_images" 'function)) :bool
+(cffi:defcfun ("cv_dnn_blob_from_images" #.(cl-swig-lispify "cv_dnn_blob_from_images" 'function)) :int
   (images :pointer)
   (out_blob :pointer)
   (scale_factor :double)
@@ -1173,48 +1274,57 @@
   (crop :bool)
   (depth :int))
 
-(cffi:defcfun ("cv_dnn_net_get_layer_names" #.(cl-swig-lispify "cv_dnn_net_get_layer_names" 'function)) :pointer
-  (net :pointer))
-
-(cffi:defcfun ("cv_dnn_net_get_layer_with_name" #.(cl-swig-lispify "cv_dnn_net_get_layer_with_name" 'function)) :pointer
+(cffi:defcfun ("cv_dnn_net_get_layer_names" #.(cl-swig-lispify "cv_dnn_net_get_layer_names" 'function)) :int
   (net :pointer)
-  (layer_name :string))
+  (names :pointer))
 
-(cffi:defcfun ("cv_dnn_net_get_layer_with_id" #.(cl-swig-lispify "cv_dnn_net_get_layer_with_id" 'function)) :pointer
+(cffi:defcfun ("cv_dnn_net_get_layer_with_name" #.(cl-swig-lispify "cv_dnn_net_get_layer_with_name" 'function)) :int
   (net :pointer)
-  (layer_id :int))
+  (layer_name :string)
+  (out_layer :pointer))
 
-(cffi:defcfun ("cv_dnn_layer_free" #.(cl-swig-lispify "cv_dnn_layer_free" 'function)) :void
-  (layer :pointer))
+(cffi:defcfun ("cv_dnn_net_get_layer_with_id" #.(cl-swig-lispify "cv_dnn_net_get_layer_with_id" 'function)) :int
+  (net :pointer)
+  (layer_id :int)
+  (out_layer :pointer))
 
-(cffi:defcfun ("cv_dnn_layer_blobs" #.(cl-swig-lispify "cv_dnn_layer_blobs" 'function)) :pointer
-  (layer :pointer))
+(cffi:defcfun ("cv_dnn_layer_blobs" #.(cl-swig-lispify "cv_dnn_layer_blobs" 'function)) :int
+  (layer :pointer)
+  (out_mats :pointer))
 
-(cffi:defcfun ("cv_dnn_layer_add_blob" #.(cl-swig-lispify "cv_dnn_layer_add_blob" 'function)) :bool
+(cffi:defcfun ("cv_dnn_layer_add_blob" #.(cl-swig-lispify "cv_dnn_layer_add_blob" 'function)) :int
   (layer :pointer)
   (blob :pointer))
 
+(cffi:defcfun ("cv_dnn_layer_free" #.(cl-swig-lispify "cv_dnn_layer_free" 'function)) :int
+  (layer :pointer))
+
 (cffi:defcfun ("cv_dnn_layer_input_name_to_index" #.(cl-swig-lispify "cv_dnn_layer_input_name_to_index" 'function)) :int
   (layer :pointer)
-  (name :string))
+  (name :string)
+  (out_index :pointer))
 
 (cffi:defcfun ("cv_dnn_layer_output_name_to_index" #.(cl-swig-lispify "cv_dnn_layer_output_name_to_index" 'function)) :int
   (layer :pointer)
-  (name :string))
+  (name :string)
+  (out_index :pointer))
 
-(cffi:defcfun ("cv_dnn_layer_name" #.(cl-swig-lispify "cv_dnn_layer_name" 'function)) :string
-  (layer :pointer))
+(cffi:defcfun ("cv_dnn_layer_name" #.(cl-swig-lispify "cv_dnn_layer_name" 'function)) :int
+  (layer :pointer)
+  (out_name :pointer))
 
-(cffi:defcfun ("cv_dnn_layer_type" #.(cl-swig-lispify "cv_dnn_layer_type" 'function)) :string
-  (layer :pointer))
+(cffi:defcfun ("cv_dnn_layer_type" #.(cl-swig-lispify "cv_dnn_layer_type" 'function)) :int
+  (layer :pointer)
+  (out_type :pointer))
 
-(cffi:defcfun ("cv_dnn_nms_boxes" #.(cl-swig-lispify "cv_dnn_nms_boxes" 'function)) :pointer
+(cffi:defcfun ("cv_dnn_nms_boxes" #.(cl-swig-lispify "cv_dnn_nms_boxes" 'function)) :int
   (bboxes :pointer)
   (scores :pointer)
   (score_threshold :float)
   (nms_threshold :float)
   (eta :float)
-  (top_k :int))
+  (top_k :int)
+  (out_indices :pointer))
 
 (cffi:defcenum #.(cl-swig-lispify "CvInterpolationWarp" 'enumname)
 	(#.(cl-swig-lispify "WARP_NONE" 'enumvalue :keyword) #.0)

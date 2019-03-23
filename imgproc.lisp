@@ -36,8 +36,7 @@
                                            interpolation)
                   (cffi:foreign-enum-value 'cv-interpolation-warp
                                            warp))))
-    (with-foreign-resource (csize (size-to-cv size)
-                            :free cv-size-free)
+    (with-foreign-resource (csize (size-to-cv size) :free cv-size-free)
       (cv-call cv-resize
                (peer img)
                (peer dst)
@@ -55,9 +54,9 @@
                             (thickness 1)
                             (line-type 8)
                             (shift 0))
-  (with-foreign-resource (ca (point-to-cv a))
-    (with-foreign-resource (cb (point-to-cv b))
-      (with-foreign-resource (cc (scalar-to-cv color))
+  (with-foreign-resource (ca (point-to-cv a) :free cv-point-free)
+    (with-foreign-resource (cb (point-to-cv b) :free cv-point-free)
+      (with-foreign-resource (cc (scalar-to-cv color) :free cv-scalar-free)
         (cv-call cv-line
                  (peer img)
                  ca cb
@@ -75,10 +74,8 @@
                              (thickness 1)
                              (line-type :line-8)
                              (bottom-left-origin nil))
-  (with-foreign-resource (corigin (point-to-cv origin)
-                          :free cv-point-free)
-    (with-foreign-resource (ccolor (scalar-to-cv color)
-                            :free cv-scalar-free)
+  (with-foreign-resource (corigin (point-to-cv origin) :free cv-point-free)
+    (with-foreign-resource (ccolor (scalar-to-cv color) :free cv-scalar-free)
       (cv-call cv-put-text
                (peer mat)
                text
@@ -97,8 +94,8 @@
                                   (thickness 1)
                                   (line-type 8)
                                   (shift 0))
-  (with-foreign-resource (cr (rect-to-cv rect))
-    (with-foreign-resource (cc (scalar-to-cv color))
+  (with-foreign-resource (cr (rect-to-cv rect) :free cv-rect-free)
+    (with-foreign-resource (cc (scalar-to-cv color) :free cv-scalar-free)
       (cv-call cv-rectangle
                (peer img)
                cr

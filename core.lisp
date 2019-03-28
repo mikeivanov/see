@@ -208,7 +208,7 @@
 
 @export
 (defun tick-frequency ()
-  (cv-call-out cv-get-tick-frequency :long))
+  (cv-call-out cv-get-tick-frequency :double))
 
 ;; Arrays ----------------------------------
 

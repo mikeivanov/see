@@ -21,31 +21,34 @@
   "face_detector_models/openface.nn4.small2.v1.t7")
 (defparameter *use-opencl* nil)
 (defparameter *confidence-threhsold* 0.5d0)
-(defparameter *match-threshold* 0.5d0)
+(defparameter *match-threshold* 0.4d0)
+(defparameter *detect-model-input-size* (size 300 300))
+(defparameter *detect-model-input-mean* (scalar 104 177 123 0))
+(defparameter *recogn-model-input-size* (size 96 96))
 
-(defvar *models* nil)
+(defvar *detect-model* nil)
+(defvar *recogn-model* nil)
 (defvar *people* (make-hash-table :test 'equal))
 (defvar *capture* nil)
 (defvar *lock* (bordeaux-threads:make-lock))
 
 (defun load-models ()
-  (setf *models*
-        (list :detect (read-net *detect-model-path*
-                                :config *detect-proto-path*
-                                :preferable-target *use-opencl*)
-              :recognize (read-net *recogn-model-path*
-                                   :preferable-target *use-opencl*))))
+  (setf *detect-model* (read-net *detect-model-path*
+                                  :config *detect-proto-path*
+                                  :preferable-target *use-opencl*)
+        *recogn-model* (read-net *recogn-model-path*
+                                 :preferable-target *use-opencl*)))
 
 (defun detect-faces (img)
   (assert (not (null *models*)))
   (bordeaux-threads:with-lock-held (*lock*)
-    (let* ((img (convert-colorspace img :color-rgba-2-bgr))
-           (blob (blob-from-images (list img)
-                                   :size (size 128 96)
-                                   :mean (scalar 104 177 123 0)
+    (let* ((img  (convert-colorspace img :color-rgba-2-bgr))
+           (fit  img)
+           (blob (blob-from-images (list fit)
+                                   :size *detect-model-input-size*
+                                   :mean *detect-model-input-mean*
                                    :swap-rb nil))
-           (net  (getf *models* :detect))
-           (out  (forward net :input blob))
+           (out  (forward *detect-model* :input blob))
            (out  (slice out '(0 0)))
            (arr  (mat-to-array out)))
       (labels ((coord (x dim)
@@ -70,10 +73,9 @@
   (assert (not (null *models*)))
   (let ((blob (blob-from-images (list face)
                                 :scale (/ 255d0)
-                                :size (size 96 96)
-                                :swap-rb t))
-        (net (getf *models* :recognize)))
-    (mat-clone (forward net :input blob))))
+                                :size *recogn-model-input-size*
+                                :swap-rb t)))
+    (mat-clone (forward *recogn-model* :input blob))))
 
 (defun tag-person (face name)
   (bordeaux-threads:with-lock-held (*lock*)

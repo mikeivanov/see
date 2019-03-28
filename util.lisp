@@ -171,3 +171,14 @@
   (string-trim '(#\Space #\Newline #\Backspace #\Tab
                  #\Linefeed #\Page #\Return #\Rubout)
                string))
+
+@export
+(defun fit-image (img box &key target)
+  (let* ((iw (cols img))
+         (ih (rows img))
+         (k  (max 1e0
+                  (/ iw (width box))
+                  (/ ih (height box))))
+         (nw (/ iw k))
+         (nh (/ ih k)))
+    (resize-image img (size nw nh) :target target)))

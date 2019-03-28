@@ -13,10 +13,10 @@
 
 (defparameter *model-path* "fast_neural_style_models/instance_norm/candy.t7")
 (defparameter *use-opencl* nil)
+(defparameter *print-net-perf* nil)
 (defparameter *blob-mean* (scalar 103.939 116.779 123.68 0))
 (defparameter *median-filter* 0)
-(defparameter *image-width* nil)
-(defparameter *image-height* nil)
+(defparameter *image-box* (size 600 600))
 
 (defvar *model* nil)
 
@@ -27,15 +27,14 @@
                                        :dnn-target-opencl))))
 
 (defun stylize-image (img)
-  (let* ((size (size (or *image-width*  (cols img))
-                     (or *image-height* (rows img))))
+  (let* ((img (fit-image img *image-box* :target img))
          (input (blob-from-images (list img)
-                                  :size size
                                   :mean *blob-mean*
                                   :swap-rb nil
                                   :crop nil)))
     (let* ((out (forward *model* :input input))
-           ;; TODO: this can be done in one step
+           ;; TODO: this can be done in just two steps
+           ;;       (via transpose then add scalar)
            (b   (add (slice out '(0 0)) 103.939))
            (g   (add (slice out '(0 1)) 116.779))
            (r   (add (slice out '(0 2)) 123.68))
@@ -46,9 +45,10 @@
           (median-blur res *median-filter*)))))
 
 (defun print-net-perf (net)
-  (let ((time (performance-profile net))
-        (freq (/ (tick-frequency) 1000d0)))
-    (format t "~sms~%" (/ time freq))))
+  (let* ((time (performance-profile net))
+         (freq (/ (tick-frequency) 1000e0))
+         (inft (/ time freq)))
+    (format t "~sms~%" inft)))
 
 (defun fast-neural-style (input)
   (load-model)
@@ -57,11 +57,12 @@
                               (video-capture :device 0)))
     (with-open-window ((win key)
                        :name "Image Style"
-                       :delay 100)
+                       :delay 50)
       (with-resource (img (read-video-frame capture))
         (when (not (empty-p img))
           (with-resource (styled (stylize-image img))
-            ;;(print-net-perf *model*)
+            (when *print-net-perf*
+              (print-net-perf *model*))
             (show-image win styled)))
         (trivial-garbage:gc :full (= 0 (random 10))))
       (< key 0))))
@@ -83,17 +84,13 @@
    :long "model"
    :arg-parser #'identity
    :description "Path to image or video. Skip to capture frames from camera.")
-  (:name :width
-   :long "width"
-   :arg-parser #'parse-integer
-   :description "Resize input to specific width.")
-  (:name :height
-   :long "height"
-   :arg-parser #'parse-integer
-   :description "Resize input to specific height.")
+  (:name :perf
+   :long "print-perf"
+   :arg-parser #'parse-boolean
+   :description "Print performance info.")
   (:name :use-opencl
    :long "use-opencl"
-   :arg-parser (lambda (v) (or (null v) (string-equal "yes" v)))
+   :arg-parser #'parse-boolean
    :description "(yes/no) Use OpenCL if available.")
   (:name :median-filter
    :short #\f
@@ -112,9 +109,8 @@
                        `(when-let (,%val (getf options ,key))
                           (setf ,param ,%val)))))
           (setparameter *model-path* :model)
-          (setparameter *image-width* :width)
-          (setparameter *image-height* :height)
           (setparameter *median-filter* :median-filter)
+          (setparameter *print-net-perf* :perf)
           (setparameter *use-opencl* :use-opencl)
           (fast-neural-style (getf options :input))))))
 

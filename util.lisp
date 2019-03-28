@@ -182,3 +182,8 @@
          (nw (/ iw k))
          (nh (/ ih k)))
     (resize-image img (size nw nh) :target target)))
+
+@export
+(defun parse-boolean (string)
+  (some (curry #'string-equal string)
+        '("yes" "y" "true" "t" "1")))

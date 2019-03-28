@@ -40,7 +40,7 @@
                                  :preferable-target *use-opencl*)))
 
 (defun detect-faces (img)
-  (assert (not (null *models*)))
+  (assert (not (null *detect-model*)))
   (bordeaux-threads:with-lock-held (*lock*)
     (let* ((img  (convert-colorspace img :color-rgba-2-bgr))
            (fit  img)
@@ -70,7 +70,6 @@
               finally (return faces))))))
 
 (defun face-to-vec (face)
-  (assert (not (null *models*)))
   (let ((blob (blob-from-images (list face)
                                 :scale (/ 255d0)
                                 :size *recogn-model-input-size*
@@ -87,6 +86,7 @@
       (setf (gethash name *people*) new))))
 
 (defun recognize-face (face)
+  (assert (not (null *recogn-model*)))
   (bordeaux-threads:with-lock-held (*lock*)
     (loop with vec = (face-to-vec face)
           with match = "Unknown"

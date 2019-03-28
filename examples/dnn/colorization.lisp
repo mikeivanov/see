@@ -20,8 +20,7 @@
 (defparameter *proto-path* "colorization_deploy_v2.prototxt")
 (defparameter *kernel-path* "pts_in_hull.csv")
 (defparameter *use-opencl* nil)
-
-(defparameter +model-input-size+ (size 224 224))
+(defparameter *model-input-size* (size 224 224))
 
 (defvar *model* nil)
 
@@ -61,7 +60,7 @@
 
 (defun colorize-image (img)
   (let* ((lum   (image-luminance img))
-         (input (resize-image lum +model-input-size+))
+         (input (resize-image lum *model-input-size*))
          (input (add input -50.0))
          (input (blob-from-images (list input)))
          (output (forward *model* :input input))

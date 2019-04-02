@@ -35,7 +35,7 @@
          (points (array-transpose points))
          (points (array-reshape points '(2 313 1 1))))
     (mat :initial-contents points
-         :depth :depth-32-f)))
+         :depth 'depth-32f)))
 
 (defun load-model ()
   (let ((net (read-net *model-path*
@@ -43,7 +43,7 @@
                        :preferable-target (when *use-opencl* :dnn-target-opencl))))
     (let ((hull (read-hull-points *kernel-path*))
           (conv (mat :shape '(1 313)
-                     :depth :depth-32-f
+                     :depth 'depth-32f
                      :initial-element 2.606))
           (class8-ab    (layer-by-name net "class8_ab"))
           (conv8-313-rh (layer-by-name net "conv8_313_rh")))
@@ -53,8 +53,8 @@
     net))
 
 (defun image-luminance (img)
-  (let* ((img (convert-to img :depth-32-f :alpha (/ 255.0)))
-         (lab (convert-colorspace img :color-bgr-2-lab)))
+  (let* ((img (convert-to img 'depth-32f :alpha (/ 255.0)))
+         (lab (convert-colorspace img 'color-bgr2lab)))
     ;; Extract luminance
     (extract-channel lab 0)))
 
@@ -70,7 +70,7 @@
          (b (resize-image (slice output '(0 1)) size))
          ;; merge and convert back to BGR
          (c (merge-channels (list lum a b))))
-      (convert-colorspace c :color-lab-2-bgr)))
+      (convert-colorspace c 'color-lab2bgr)))
 
 (defun colorization (input)
   (load-model)

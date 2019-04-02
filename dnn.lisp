@@ -5,6 +5,9 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
+(defenum cv-dnn-backend-enum)
+(defenum cv-dnn-target-enum)
+
 @export
 (defclass net (proxy) ())
 
@@ -45,7 +48,7 @@
                                   (size (size))
                                   (mean (scalar))
                                   swap-rb crop
-                                  (depth :depth-32-f))
+                                  (depth 'depth-32f))
   (with-foreign-resource (cimages (mats-to-cv images)
                           :free cv-mats-free)
     (with-foreign-resource (cmean (scalar-to-cv mean)
@@ -53,7 +56,7 @@
       (with-foreign-resource (csize (size-to-cv size)
                               :free cv-size-free)
         (let ((blob (mat))
-              (cdepth (cffi:foreign-enum-value 'cv-depths depth)))
+              (cdepth (cffi:foreign-enum-value 'cv-depth-enum depth)))
           (cv-call cv-dnn-blob-from-images
                    cimages
                    (peer blob)
@@ -70,7 +73,7 @@
                                  (name "")
                                  (scale 1d0)
                                  (mean (scalar)))
-  (assert (eq :depth-32-f (depth blob)))
+  (assert (eq 'depth-32f (depth blob)))
   (with-foreign-resource (cmean (scalar-to-cv mean)
                           :free cv-scalar-free)
     (cv-call cv-dnn-net-set-input

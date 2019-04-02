@@ -5,8 +5,15 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
+(defenum cv-imread-modes-enum)
+(defenum cv-imread-flags-enum)
+(defenum cv-imwrite-flags-enum)
+(defenum cv-imwrite-exr-type-flags-enum)
+(defenum cv-imwrite-png-flags-enum)
+(defenum cv-imwrite-pam-flags-enum)
+
 (defun imread-flags-to-cv (mode load-gdal-p ignore-orientation-p)
-  (+ (cffi:foreign-enum-value 'cv-imread-modes mode)
+  (+ (cffi:foreign-enum-value 'cv-imread-modes-enum mode)
      (if load-gdal-p 8 0)
      (if ignore-orientation-p 128 0)))
 
@@ -24,10 +31,10 @@
 
 @export
 (defun read-image (path &key
-                          (mode :imread-anycolor)
+                          (mode 'imread-anycolor)
                           load-gdal-p ignore-orientation-p
                           multi-p destination)
-  (let ((flags (+ (cffi:foreign-enum-value 'cv-imread-modes mode)
+  (let ((flags (+ (cffi:foreign-enum-value 'cv-imread-modes-enum mode)
                   (if load-gdal-p 8 0)
                   (if ignore-orientation-p 128 0))))
     (if multi-p
@@ -37,7 +44,7 @@
 (defun imwrite-flags-to-cv (flags)
   (ints-to-cv
    (loop for (k v) on flags by #'cddr while k
-         append (let* ((cf (cffi:foreign-enum-value 'cv-imwrite-flags k))
+         append (let* ((cf (cffi:foreign-enum-value 'cv-imwrite-flags-enum k))
                        (cv (etypecase v
                              (number  (round v))
                              (boolean (if v 1 0)))))

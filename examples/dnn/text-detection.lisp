@@ -100,7 +100,7 @@
 (defun draw-perf-info (img label)
   (draw-text img label
              :origin (point 0 15)
-             :font-face :font-hershey-simplex
+             :font-face 'font-hershey-simplex
              :font-scale 0.5
              :color (scalar 0 255 0 0)))
 

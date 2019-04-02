@@ -5,6 +5,8 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
+(defenum cv-video-capture-apis-enum)
+
 @export
 (defclass video-capture (proxy) ())
 
@@ -14,10 +16,10 @@
                  :release (lambda (x) (cv-call cv-video-capture-free x))))
 
 @export
-(defun video-capture (&key uri device (api-preference :cap-any))
+(defun video-capture (&key uri device (api-preference 'cap-any))
   (assert (xor uri device))
   (let* ((cap (video-capture-new))
-         (api (cffi:foreign-enum-value 'cv-video-capture-apis api-preference)))
+         (api (cffi:foreign-enum-value 'cv-video-capture-apis-enum api-preference)))
     (if uri
         (cv-call cv-video-capture-open-uri (peer cap) uri api)
         (cv-call cv-video-capture-open-device (peer cap) device api))

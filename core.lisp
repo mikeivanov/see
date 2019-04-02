@@ -5,6 +5,8 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
+(defenum cv-depth-enum)
+
 @export
 (defgeneric at (container idx &key &allow-other-keys))
 
@@ -20,7 +22,7 @@
                             (cv-call cv-mat-free self))))
 
 (defun make-type (depth channels)
-  (let ((cdepth (cffi:foreign-enum-value 'cv-depths depth)))
+  (let ((cdepth (cffi:foreign-enum-value 'cv-depth-enum depth)))
     (cv-call-out cv-make-type cdepth channels :int)))
 
 (defun mat-new-empty ()
@@ -52,7 +54,7 @@
 @export
 (defun mat (&key
               shape initial-element initial-contents
-              (depth :depth-8-u) (channels 1))
+              (depth 'depth-8u) (channels 1))
   (cond ((and (not shape) (not initial-element) (not initial-contents))
          (mat-new-empty))
         ((and shape (not initial-contents))
@@ -93,7 +95,7 @@
 @export
 (defun depth (mat)
   (let ((val (cv-call-out cv-mat-depth (peer mat) :int)))
-    (cffi:foreign-enum-keyword 'cv-depths val)))
+    (cffi:foreign-enum-keyword 'cv-depth-enum val)))
 
 @export
 (defun channels (mat)
@@ -126,23 +128,23 @@
 
 (defun depth-cffi-type (depth)
   (ecase depth
-    (:depth-8-u  :uint8)
-    (:depth-8-s  :int8)
-    (:depth-16-u :uint16)
-    (:depth-16-s :int16)
-    (:depth-32-s :int32)
-    (:depth-32-f :float)
-    (:depth-64-f :double)))
+    (depth-8u  :uint8)
+    (depth-8s  :int8)
+    (depth-16u :uint16)
+    (depth-16s :int16)
+    (depth-32s :int32)
+    (depth-32f :float)
+    (depth-64f :double)))
 
 (defun depth-lisp-type (depth)
   (ecase depth
-    (:depth-8-u  '(unsigned-byte 8))
-    (:depth-8-s  '(signed-byte 8))
-    (:depth-16-u '(unsigned-byte 16))
-    (:depth-16-s '(signed-byte 16))
-    (:depth-32-s '(signed-byte 32))
-    (:depth-32-f 'single-float)
-    (:depth-64-f 'double-float)))
+    (depth-8u  '(unsigned-byte 8))
+    (depth-8s  '(signed-byte 8))
+    (depth-16u '(unsigned-byte 16))
+    (depth-16s '(signed-byte 16))
+    (depth-32s '(signed-byte 32))
+    (depth-32f 'single-float)
+    (depth-64f 'double-float)))
 
 (defun mat-get-value (mat index channel)
   (let ((ptr  (mat-ptr mat index))

@@ -5,6 +5,8 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
+(defenum cv-mouse-event-types-enum)
+
 ;; TODO: shouldn't it be a weak hash?
 (defvar *windows* (make-hash-table :test 'equal))
 
@@ -25,7 +27,7 @@
          (window (gethash name *windows*)))
     (when window
       (when-let ((on-mouse (slot-value window 'on-mouse)))
-        (let ((event-kw (cffi:foreign-enum-keyword 'cv-mouse-event-types event)))
+        (let ((event-kw (cffi:foreign-enum-keyword 'cv-mouse-event-types-enum event)))
           (funcall on-mouse window event-kw x y flags))))))
 
 @export

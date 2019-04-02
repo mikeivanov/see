@@ -42,7 +42,7 @@
 (defun detect-faces (img)
   (assert (not (null *detect-model*)))
   (bordeaux-threads:with-lock-held (*lock*)
-    (let* ((img  (convert-colorspace img :color-rgba-2-bgr))
+    (let* ((img  (convert-colorspace img 'color-rgba2bgr))
            (fit  img)
            (blob (blob-from-images (list fit)
                                    :size *detect-model-input-size*
@@ -163,7 +163,7 @@
                           :delay 100
                           :on-mouse (lambda (win event x y flags)
                                       (declare (ignore win) (ignore flags))
-                                      (when (eq :event-lbuttonup event)
+                                      (when (eq 'event-lbuttonup event)
                                         (on-click x y))))
          (when-let ((frame (capture-next-frame)))
            (let ((recognized (process-frame frame)))

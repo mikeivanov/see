@@ -5,6 +5,12 @@
 (in-package #:see)
 (annot:enable-annot-syntax)
 
+(defenum cv-line-types-enum)
+(defenum cv-hershey-fonts-enum)
+(defenum cv-color-conversion-codes-enum)
+(defenum cv-interpolation-flags-enum)
+(defenum cv-interpolation-warp-enum)
+
 ;; Filters -----------------------------
 
 @export
@@ -21,20 +27,20 @@
     (cv-call cv-cvt-color
              (peer img)
              (peer dst)
-             (cffi:foreign-enum-value 'cv-color-conversion-codes code)
+             (cffi:foreign-enum-value 'cv-color-conversion-codes-enum code)
              channels)
     dst))
 
 @export
 (defun resize-image (img size &key
                                 target (fx 0d0) (fy 0d0)
-                                (interpolation :inter-linear)
-                                (warp :warp-none))
+                                (interpolation 'inter-linear)
+                                (warp 'warp-none))
   (assert (= 2 (dims img)))
   (let ((dst (or target (mat)))
-        (flags (+ (cffi:foreign-enum-value 'cv-interpolation-flags
+        (flags (+ (cffi:foreign-enum-value 'cv-interpolation-flags-enum
                                            interpolation)
-                  (cffi:foreign-enum-value 'cv-interpolation-warp
+                  (cffi:foreign-enum-value 'cv-interpolation-warp-enum
                                            warp))))
     (with-foreign-resource (csize (size-to-cv size) :free cv-size-free)
       (cv-call cv-resize
@@ -68,11 +74,11 @@
 @export
 (defun draw-text (mat text &key
                              (origin (point 0 0))
-                             (font-face :font-hershey-plain)
+                             (font-face 'font-hershey-plain)
                              (font-scale 1.0)
                              (color (scalar))
                              (thickness 1)
-                             (line-type :line-8)
+                             (line-type 'line-8)
                              (bottom-left-origin nil))
   (with-foreign-resource (corigin (point-to-cv origin) :free cv-point-free)
     (with-foreign-resource (ccolor (scalar-to-cv color) :free cv-scalar-free)
@@ -80,11 +86,11 @@
                (peer mat)
                text
                corigin
-               (cffi:foreign-enum-value 'cv-hershey-fonts font-face)
+               (cffi:foreign-enum-value 'cv-hershey-fonts-enum font-face)
                (as-double-float font-scale)
                ccolor
                thickness
-               (cffi:foreign-enum-value 'cv-line-types line-type)
+               (cffi:foreign-enum-value 'cv-line-types-enum line-type)
                bottom-left-origin)
       mat)))
 
